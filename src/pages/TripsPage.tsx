@@ -66,7 +66,7 @@ export function TripsPage(): React.JSX.Element {
   const handleUpdateStatus = (t: Trip, status: Trip['status']) => {
     setTrips((prev) => prev.map((trip) => {
       if (trip.id !== t.id) return trip;
-      let updates: Partial<Trip> = { status };
+      const updates: Partial<Trip> = { status };
       if (status === 'dispatched' || status === 'in_progress') updates.actualStart = new Date().toISOString();
       if (status === 'completed') updates.actualEnd = new Date().toISOString();
       return { ...trip, ...updates };
