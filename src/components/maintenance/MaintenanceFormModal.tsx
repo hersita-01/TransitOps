@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '@/components/ui/Modal';
 import type { MaintenanceRecord, Vehicle } from '@/types';
-import { MOCK_VEHICLES } from '@/mock/vehicles';
+import { useVehicles } from '@/hooks/useVehicles';
 
 const maintenanceSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -34,6 +34,7 @@ export function MaintenanceFormModal({
   onSave,
 }: MaintenanceFormModalProps): React.JSX.Element {
   const isEditing = !!initialData;
+  const { vehicles } = useVehicles();
 
   const {
     register,
@@ -70,6 +71,7 @@ export function MaintenanceFormModal({
   const onSubmit = (data: MaintenanceFormData) => {
     onSave({
       ...data,
+      estimatedCost: typeof data.estimatedCost === 'number' && !isNaN(data.estimatedCost) ? data.estimatedCost : 0,
       scheduledDate: new Date(data.scheduledDate).toISOString(),
     });
   };
@@ -94,7 +96,7 @@ export function MaintenanceFormModal({
           <Field label="Vehicle" error={errors.vehicleId?.message}>
             <select {...register('vehicleId')} className="input-field" disabled={isEditing}>
               <option value="">-- Select Vehicle --</option>
-              {MOCK_VEHICLES.map((v) => {
+              {vehicles.map((v) => {
                 const disabled = isVehicleUnavailable(v);
                 return (
                   <option key={v.id} value={v.id} disabled={disabled}>
@@ -148,7 +150,7 @@ export function MaintenanceFormModal({
             <Field label="Scheduled Date" error={errors.scheduledDate?.message}>
               <input type="date" {...register('scheduledDate')} className="input-field" />
             </Field>
-            <Field label="Est. Cost ($)" error={errors.estimatedCost?.message}>
+            <Field label="Est. Cost (₹)" error={errors.estimatedCost?.message}>
               <input type="number" step="0.01" {...register('estimatedCost')} className="input-field" placeholder="0.00" />
             </Field>
           </div>

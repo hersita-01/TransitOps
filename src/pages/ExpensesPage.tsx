@@ -148,7 +148,7 @@ export function ExpensesPage(): React.JSX.Element {
     {
       key: 'amount',
       header: 'Amount',
-      accessor: (e) => <span className="text-slate-100 font-semibold">₹{e.amountUsd.toFixed(2)}</span>,
+      accessor: (e) => <span className="text-slate-100 font-semibold">₹{(e.amountUsd || 0).toFixed(2)}</span>,
       align: 'right',
       sortable: true,
     },

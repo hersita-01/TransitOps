@@ -5,10 +5,10 @@ import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Pagination } from '@/components/common/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { MOCK_VEHICLES } from '@/services/mockData';
+import { useVehicles } from '@/hooks/useVehicles';
 import { useMaintenance } from '@/hooks/useMaintenance';
 import { formatDateTime, humaniseKey } from '@/utils';
-import type { MaintenanceRecord, Vehicle } from '@/types';
+import type { MaintenanceRecord } from '@/types';
 import { MaintenanceFilters, type MaintenanceFilterState } from '@/components/maintenance/MaintenanceFilters';
 import { MaintenanceDetailsModal } from '@/components/maintenance/MaintenanceDetailsModal';
 import { MaintenanceFormModal } from '@/components/maintenance/MaintenanceFormModal';
@@ -16,7 +16,7 @@ import { MaintenanceFormModal } from '@/components/maintenance/MaintenanceFormMo
 export function MaintenancePage(): React.JSX.Element {
   // ── State ────────────────────────────────────────────────────────
   const { records, addRecord, updateRecord, deleteRecord } = useMaintenance();
-  const [vehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+  const { vehicles } = useVehicles();
   const [filters, setFilters] = useState<MaintenanceFilterState>({
     search: '',
     status: '',
@@ -99,7 +99,7 @@ export function MaintenancePage(): React.JSX.Element {
     if (page > maxPage && maxPage > 0) setPage(maxPage);
   }, [total, page]);
 
-  const now = new Date().getTime();
+  const now = Date.now();
   const metrics = {
     inService: vehicles.filter(v => v.status === 'maintenance').length,
     scheduled: records.filter(r => r.status === 'scheduled').length,
@@ -109,10 +109,16 @@ export function MaintenancePage(): React.JSX.Element {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'text-red-400 bg-red-400/10 border-red-400/20';
-      case 'high': return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
-      case 'medium': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
-      default: return 'text-slate-400 bg-slate-800 border-slate-700';
+      case 'critical':
+        return 'text-red-400 border-red-500/30 bg-red-500/10';
+      case 'high':
+        return 'text-amber-400 border-amber-500/30 bg-amber-500/10';
+      case 'medium':
+        return 'text-blue-400 border-blue-500/30 bg-blue-500/10';
+      case 'low':
+        return 'text-slate-400 border-slate-500/30 bg-slate-500/10';
+      default:
+        return 'text-slate-400 border-slate-500/30 bg-slate-500/10';
     }
   };
 
@@ -121,11 +127,11 @@ export function MaintenancePage(): React.JSX.Element {
     {
       key: 'id',
       header: 'ID',
-      accessor: (r) => <span className="font-mono text-[11px] font-medium text-slate-300">#{r.id.replace('maint_', '').toUpperCase()}</span>,
+      accessor: (r) => <span className="font-mono text-xs text-slate-400">{r.id}</span>,
     },
     {
       key: 'vehicle',
-      header: 'Vehicle & Reg',
+      header: 'Vehicle',
       accessor: (r) => {
         const v = vehicles.find((v) => v.id === r.vehicleId);
         return (
@@ -173,11 +179,12 @@ export function MaintenancePage(): React.JSX.Element {
       header: 'Cost',
       align: 'right',
       accessor: (r) => {
-        const cost = r.actualCost !== null ? r.actualCost : r.estimatedCost;
+        const cost = (r.actualCost != null && typeof r.actualCost === 'number') ? r.actualCost : r.estimatedCost;
+        const hasCost = cost != null && typeof cost === 'number' && !isNaN(cost);
         return (
           <div className="flex flex-col items-end gap-0.5">
-            <span className="text-xs font-medium text-slate-200">{cost !== null ? `₹${cost.toFixed(2)}` : 'N/A'}</span>
-            <span className="text-[10px] text-slate-500">{r.actualCost !== null ? 'Actual' : 'Est.'}</span>
+            <span className="text-xs font-medium text-slate-200">{hasCost ? `₹${cost.toFixed(2)}` : 'N/A'}</span>
+            <span className="text-[10px] text-slate-500">{r.actualCost != null ? 'Actual' : 'Est.'}</span>
           </div>
         );
       },

@@ -130,7 +130,7 @@ export function MaintenanceDetailsModal({ open, onOpenChange, record }: Maintena
             <div>
               <p className="text-xs text-slate-400 font-medium">Estimated Cost</p>
               <p className="text-lg font-semibold text-slate-200">
-                {record.estimatedCost !== null ? `$${record.estimatedCost.toFixed(2)}` : 'N/A'}
+                {record.estimatedCost != null && typeof record.estimatedCost === 'number' ? `₹${record.estimatedCost.toFixed(2)}` : 'N/A'}
               </p>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function MaintenanceDetailsModal({ open, onOpenChange, record }: Maintena
             <div>
               <p className="text-xs text-slate-400 font-medium">Actual Cost</p>
               <p className="text-lg font-semibold text-emerald-400">
-                {record.actualCost !== null ? `$${record.actualCost.toFixed(2)}` : 'Pending'}
+                {record.actualCost != null && typeof record.actualCost === 'number' ? `₹${record.actualCost.toFixed(2)}` : 'Pending'}
               </p>
             </div>
           </div>
