@@ -105,8 +105,8 @@ export function AuthProvider({ children }: AuthProviderProps): React.JSX.Element
       await new Promise((resolve) => setTimeout(resolve, 800));
       // Accept the demo credentials; reject everything else
       const validDemoEmails = [
-        'alex.morgan@transitops.io',
-        'demo@transitops.io',
+        'admin@transitops.in',
+        'dispatch@transitops.in',
       ];
       if (!validDemoEmails.includes(email.toLowerCase())) {
         setState((prev) => ({ ...prev, isLoading: false }));

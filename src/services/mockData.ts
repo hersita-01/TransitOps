@@ -25,9 +25,9 @@ export { MOCK_VEHICLES, MOCK_DRIVERS, MOCK_TRIPS, MOCK_MAINTENANCE, MOCK_EXPENSE
 
 export const MOCK_CURRENT_USER: User = {
   id: 'usr_001',
-  firstName: 'Alex',
-  lastName: 'Morgan',
-  email: 'alex.morgan@transitops.io',
+  firstName: 'Ravi',
+  lastName: 'Kumar',
+  email: 'admin@transitops.in',
   role: 'admin',
   avatar: null,
   lastLogin: '2025-07-11T08:30:00Z',

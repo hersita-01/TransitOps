@@ -8,8 +8,8 @@ export function LoginPage(): React.JSX.Element {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('alex.morgan@transitops.io');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('admin@transitops.in');
+  const [password, setPassword] = useState('TransitOps@2024');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
@@ -212,8 +212,8 @@ export function LoginPage(): React.JSX.Element {
           <div className="mt-6 p-4 rounded-xl border"
                style={{ background: 'rgba(15,23,42,0.5)', borderColor: 'rgba(34,211,238,0.12)' }}>
             <p className="text-xs font-semibold text-slate-500 mb-2">🔑 Demo credentials</p>
-            <p className="text-xs text-slate-600 font-mono">Email: alex.morgan@transitops.io</p>
-            <p className="text-xs text-slate-600 font-mono">Password: password</p>
+            <p className="text-xs text-slate-600 font-mono">Email: admin@transitops.in</p>
+            <p className="text-xs text-slate-600 font-mono">Password: TransitOps@2024</p>
           </div>
         </div>
       </div>
