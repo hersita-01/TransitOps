@@ -5,7 +5,6 @@
 // ──────────────────────────────────────────────────────────────
 
 import type {
-  Driver,
   Trip,
   MaintenanceRecord,
   Expense,
@@ -16,6 +15,11 @@ import type {
   TripAnalytics,
   User,
 } from '@/types';
+
+import { MOCK_DRIVERS } from '@/mock/drivers';
+import { MOCK_VEHICLES } from '@/mock/vehicles';
+
+export { MOCK_VEHICLES, MOCK_DRIVERS };
 
 // ── Current User ────────────────────────────────────────────
 
@@ -29,92 +33,7 @@ export const MOCK_CURRENT_USER: User = {
   lastLogin: '2025-07-11T08:30:00Z',
 };
 
-export { MOCK_VEHICLES } from '@/mock/vehicles';
-
 // ── Drivers ─────────────────────────────────────────────────
-
-export const MOCK_DRIVERS: Driver[] = [
-  {
-    id: 'drv_001',
-    firstName: 'James',
-    lastName: 'Carter',
-    email: 'j.carter@transitops.io',
-    phone: '+1-212-555-0101',
-    licenseNumber: 'NY-DL-884432',
-    licenseExpiry: '2027-03-15',
-    status: 'on_trip',
-    vehicleId: 'veh_001',
-    totalTrips: 342,
-    totalDistance: 28450,
-    rating: 4.8,
-    joinedAt: '2020-02-10T00:00:00Z',
-    avatar: null,
-  },
-  {
-    id: 'drv_002',
-    firstName: 'Maria',
-    lastName: 'Santos',
-    email: 'm.santos@transitops.io',
-    phone: '+1-212-555-0102',
-    licenseNumber: 'NY-DL-771100',
-    licenseExpiry: '2026-08-22',
-    status: 'on_trip',
-    vehicleId: 'veh_003',
-    totalTrips: 218,
-    totalDistance: 19800,
-    rating: 4.9,
-    joinedAt: '2021-05-20T00:00:00Z',
-    avatar: null,
-  },
-  {
-    id: 'drv_003',
-    firstName: 'David',
-    lastName: 'Kim',
-    email: 'd.kim@transitops.io',
-    phone: '+1-212-555-0103',
-    licenseNumber: 'NY-DL-990034',
-    licenseExpiry: '2028-11-30',
-    status: 'on_trip',
-    vehicleId: 'veh_005',
-    totalTrips: 178,
-    totalDistance: 14200,
-    rating: 4.7,
-    joinedAt: '2022-09-01T00:00:00Z',
-    avatar: null,
-  },
-  {
-    id: 'drv_004',
-    firstName: 'Sarah',
-    lastName: 'Thompson',
-    email: 's.thompson@transitops.io',
-    phone: '+1-212-555-0104',
-    licenseNumber: 'NY-DL-554423',
-    licenseExpiry: '2025-12-01',
-    status: 'available',
-    vehicleId: null,
-    totalTrips: 95,
-    totalDistance: 7800,
-    rating: 4.5,
-    joinedAt: '2023-03-15T00:00:00Z',
-    avatar: null,
-  },
-  {
-    id: 'drv_005',
-    firstName: 'Robert',
-    lastName: 'Williams',
-    email: 'r.williams@transitops.io',
-    phone: '+1-212-555-0105',
-    licenseNumber: 'NY-DL-336611',
-    licenseExpiry: '2026-05-19',
-    status: 'off_duty',
-    vehicleId: null,
-    totalTrips: 412,
-    totalDistance: 35600,
-    rating: 4.6,
-    joinedAt: '2019-07-22T00:00:00Z',
-    avatar: null,
-  },
-];
 
 // ── Trips ───────────────────────────────────────────────────
 
@@ -302,8 +221,8 @@ export const MOCK_KPI_CARDS: KPICard[] = [
   {
     id: 'kpi_drivers',
     title: 'On-Duty Drivers',
-    value: 3,
-    unit: '/ 5',
+    value: MOCK_DRIVERS.filter(d => d.status === 'on_trip').length,
+    unit: `/ ${MOCK_DRIVERS.length}`,
     trend: 'neutral',
     trendValue: 'Same as yesterday',
     icon: 'Users',

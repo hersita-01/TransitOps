@@ -5,7 +5,7 @@
 // ── Enums / Literal Unions ──────────────────────────────────
 
 export type VehicleStatus = 'active' | 'idle' | 'maintenance' | 'offline';
-export type DriverStatus = 'available' | 'on_trip' | 'off_duty' | 'suspended';
+export type DriverStatus = 'available' | 'on_trip' | 'on_leave' | 'inactive' | 'suspended';
 export type TripStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 export type MaintenanceStatus = 'pending' | 'in_progress' | 'completed' | 'overdue';
 export type ExpenseCategory = 'fuel' | 'maintenance' | 'tolls' | 'insurance' | 'other';
@@ -42,10 +42,16 @@ export interface Driver {
   id: string;
   firstName: string;
   lastName: string;
+  employeeId: string;
   email: string;
   phone: string;
+  address: string;
   licenseNumber: string;
+  licenseCategory: string;
   licenseExpiry: string; // ISO date
+  experienceYears: number;
+  emergencyContact: string;
+  medicalFitnessStatus: 'fit' | 'unfit' | 'pending';
   status: DriverStatus;
   vehicleId: string | null;
   totalTrips: number;
