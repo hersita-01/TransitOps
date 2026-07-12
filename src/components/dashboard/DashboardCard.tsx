@@ -12,9 +12,9 @@ export function DashboardCard({
   className,
 }: DashboardCardProps): React.JSX.Element {
   return (
-    <div
+    <section
       className={cn(
-        'rounded-2xl bg-slate-800/60 border border-slate-700/60 overflow-hidden',
+        'rounded-2xl border border-slate-700/60 bg-slate-800/40 flex flex-col hover-card-up',
         className
       )}
     >
@@ -36,7 +36,7 @@ export function DashboardCard({
       </div>
 
       {/* Content */}
-      <div>{children}</div>
-    </div>
+      <div className="flex-1">{children}</div>
+    </section>
   );
 }

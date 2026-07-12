@@ -15,6 +15,7 @@ const ExpensesPage    = lazy(() => import('@/pages/ExpensesPage').then(m => ({ d
 const AnalyticsPage   = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
 const SettingsPage    = lazy(() => import('@/pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const ProfilePage     = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const HelpPage        = lazy(() => import('@/pages/HelpPage').then(m => ({ default: m.HelpPage })));
 const NotFoundPage    = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 function PageSuspense({ children }: { children: React.ReactNode }) {
@@ -123,6 +124,16 @@ export function AppRouter(): React.JSX.Element {
           <ProtectedRoute>
             <DashboardLayout>
               <PageSuspense><ProfilePage /></PageSuspense>
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/help"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <PageSuspense><HelpPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }

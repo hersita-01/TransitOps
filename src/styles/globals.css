@@ -96,3 +96,36 @@ body {
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
               transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ── Micro-Interactions ─────────────────────────────────── */
+.hover-card-up {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-card-up:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Print Styles ───────────────────────────────────────── */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+  
+  .print\:hidden {
+    display: none !important;
+  }
+
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .print-page-break {
+    page-break-before: always;
+  }
+}

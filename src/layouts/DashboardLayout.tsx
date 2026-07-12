@@ -4,6 +4,8 @@ import { Sidebar } from '@/components/common/Sidebar';
 import { Header } from '@/components/common/Header';
 import { CommandPalette } from '@/components/ui/CommandPalette';
 import { useSidebar } from '@/hooks/useSidebar';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useDemo } from '@/context/DemoContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,6 +14,8 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.Element {
   const { isOpen, isCollapsed, close, toggle, toggleCollapse } = useSidebar();
   const [cmdOpen, setCmdOpen] = React.useState(false);
+  const { isDemoMode } = useDemo();
+  useKeyboardShortcuts();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -51,7 +55,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
         <main
           id="main-content"
           role="main"
-          className="flex-1 pt-16 min-h-0"
+          className="flex-1 pt-16 min-h-0 print:pt-0"
         >
           <div className="p-4 lg:p-6 xl:p-8 max-w-screen-2xl mx-auto">
             {children}
@@ -59,10 +63,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
         </main>
 
         {/* Footer */}
-        <footer className="px-4 lg:px-6 py-3 border-t border-slate-800 text-center">
+        <footer className="px-4 lg:px-6 py-3 border-t border-slate-800 text-center flex flex-col items-center justify-center print:hidden">
           <p className="text-[11px] text-slate-600">
             © {new Date().getFullYear()} TransitOps · Smart Transport Operations Platform
           </p>
+          {isDemoMode && (
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-semibold uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+              Demo Mode Active
+            </div>
+          )}
         </footer>
       </div>
     </div>

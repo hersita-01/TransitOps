@@ -57,7 +57,7 @@ export function StatCard({ card, icon, className }: StatCardProps): React.JSX.El
       className={cn(
         'relative overflow-hidden rounded-2xl p-5',
         'bg-slate-800/60 border border-slate-700/60',
-        'hover:border-slate-600 hover:bg-slate-800/80 transition-all duration-200',
+        'hover:border-slate-600 hover:bg-slate-800/80 transition-all duration-200 hover-card-up',
         'group cursor-default',
         className
       )}
