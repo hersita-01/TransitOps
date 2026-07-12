@@ -5,8 +5,6 @@
 // ──────────────────────────────────────────────────────────────
 
 import type {
-  MaintenanceRecord,
-  Expense,
   KPICard,
   FleetStatusSummary,
   FuelSummary,
@@ -18,8 +16,10 @@ import type {
 import { MOCK_VEHICLES } from '@/mock/vehicles';
 import { MOCK_DRIVERS } from '@/mock/drivers';
 import { MOCK_TRIPS } from '@/mock/trips';
+import { MOCK_MAINTENANCE } from '@/mock/maintenance';
+import { MOCK_EXPENSES } from '@/mock/expenses';
 
-export { MOCK_VEHICLES, MOCK_DRIVERS, MOCK_TRIPS };
+export { MOCK_VEHICLES, MOCK_DRIVERS, MOCK_TRIPS, MOCK_MAINTENANCE, MOCK_EXPENSES };
 
 // ── Current User ────────────────────────────────────────────
 
@@ -39,66 +39,7 @@ export const MOCK_CURRENT_USER: User = {
 
 // ── Maintenance Records ──────────────────────────────────────
 
-export const MOCK_MAINTENANCE: MaintenanceRecord[] = [
-  {
-    id: 'mnt_001',
-    vehicleId: 'veh_004',
-    type: 'engine_check',
-    description: 'Full engine diagnostic and tune-up',
-    status: 'in_progress',
-    scheduledDate: '2025-07-10',
-    completedDate: null,
-    costUsd: null,
-    technicianName: 'Carlos Ruiz',
-    notes: 'Detected minor oil leak – fixing concurrently',
-  },
-  {
-    id: 'mnt_002',
-    vehicleId: 'veh_006',
-    type: 'full_service',
-    description: 'Complete vehicle overhaul – 100k service',
-    status: 'overdue',
-    scheduledDate: '2025-06-01',
-    completedDate: null,
-    costUsd: null,
-    technicianName: null,
-    notes: 'Delayed due to parts availability',
-  },
-  {
-    id: 'mnt_003',
-    vehicleId: 'veh_002',
-    type: 'tire_rotation',
-    description: 'Rotate and balance all four tires',
-    status: 'pending',
-    scheduledDate: '2025-07-15',
-    completedDate: null,
-    costUsd: 120,
-    technicianName: 'Mike Johnson',
-    notes: null,
-  },
-  {
-    id: 'mnt_004',
-    vehicleId: 'veh_001',
-    type: 'oil_change',
-    description: '5000km oil and filter change',
-    status: 'completed',
-    scheduledDate: '2025-05-10',
-    completedDate: '2025-05-10',
-    costUsd: 85,
-    technicianName: 'Carlos Ruiz',
-    notes: null,
-  },
-];
-
-// ── Expenses ────────────────────────────────────────────────
-
-export const MOCK_EXPENSES: Expense[] = [
-  { id: 'exp_001', vehicleId: 'veh_001', driverId: 'drv_001', tripId: 'trp_005', category: 'fuel', amountUsd: 62.40, description: 'Fuel refill – Shell station', date: '2025-07-10', receiptUrl: null, approvedBy: 'mgr_001' },
-  { id: 'exp_002', vehicleId: 'veh_004', driverId: null, tripId: null, category: 'maintenance', amountUsd: 340.00, description: 'Engine diagnostic', date: '2025-07-10', receiptUrl: null, approvedBy: 'mgr_001' },
-  { id: 'exp_003', vehicleId: 'veh_003', driverId: 'drv_002', tripId: 'trp_002', category: 'tolls', amountUsd: 18.50, description: 'Holland Tunnel toll', date: '2025-07-11', receiptUrl: null, approvedBy: null },
-  { id: 'exp_004', vehicleId: 'veh_005', driverId: 'drv_003', tripId: null, category: 'fuel', amountUsd: 88.20, description: 'Fuel refill – BP station', date: '2025-07-09', receiptUrl: null, approvedBy: 'mgr_001' },
-  { id: 'exp_005', vehicleId: null, driverId: null, tripId: null, category: 'insurance', amountUsd: 2400.00, description: 'Monthly fleet insurance premium', date: '2025-07-01', receiptUrl: null, approvedBy: 'mgr_001' },
-];
+// ── Maintenance Records & Expenses (Exported above) ──────────
 
 // ── Dashboard KPI Cards ──────────────────────────────────────
 
@@ -144,19 +85,19 @@ export const MOCK_KPI_CARDS: KPICard[] = [
     color: 'cyan',
   },
   {
-    id: 'kpi_fuel',
-    title: 'Fuel Spend',
-    value: '$150.60',
-    unit: 'today',
+    id: 'kpi_cost',
+    title: 'Operational Cost',
+    value: `$${(MOCK_EXPENSES.reduce((sum, exp) => sum + exp.amountUsd, 0) / 1000).toFixed(1)}k`,
+    unit: 'this month',
     trend: 'down',
-    trendValue: '-8.2% vs yesterday',
-    icon: 'Fuel',
+    trendValue: '-2.4% vs last month',
+    icon: 'Wallet',
     color: 'amber',
   },
   {
-    id: 'kpi_maintenance',
-    title: 'Maintenance Alerts',
-    value: 3,
+    id: 'kpi_maint',
+    title: 'Upcoming Maintenance',
+    value: MOCK_MAINTENANCE.filter(m => m.status === 'scheduled').length,
     unit: 'pending',
     trend: 'up',
     trendValue: '+2 this week',

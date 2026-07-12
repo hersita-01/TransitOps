@@ -7,8 +7,8 @@
 export type VehicleStatus = 'active' | 'idle' | 'maintenance' | 'offline';
 export type DriverStatus = 'available' | 'on_trip' | 'on_leave' | 'inactive' | 'suspended';
 export type TripStatus = 'draft' | 'scheduled' | 'dispatched' | 'in_progress' | 'completed' | 'cancelled';
-export type MaintenanceStatus = 'pending' | 'in_progress' | 'completed' | 'overdue';
-export type ExpenseCategory = 'fuel' | 'maintenance' | 'tolls' | 'insurance' | 'other';
+export type MaintenanceStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+export type ExpenseCategory = 'fuel' | 'maintenance' | 'insurance' | 'tyres' | 'repairs' | 'tolls' | 'permits' | 'miscellaneous';
 export type UserRole = 'admin' | 'manager' | 'dispatcher' | 'viewer';
 export type TrendDirection = 'up' | 'down' | 'neutral';
 
@@ -95,7 +95,10 @@ export interface MaintenanceRecord {
   status: MaintenanceStatus;
   scheduledDate: string; // ISO date
   completedDate: string | null;
-  costUsd: number | null;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  estimatedCost: number | null;
+  actualCost: number | null;
+  partsUsed: string[] | null;
   technicianName: string | null;
   notes: string | null;
 }
@@ -109,9 +112,11 @@ export interface Expense {
   tripId: string | null;
   category: ExpenseCategory;
   amountUsd: number;
+  vendor: string | null;
   description: string;
   date: string; // ISO date
   receiptUrl: string | null;
+  status: 'pending' | 'approved' | 'rejected';
   approvedBy: string | null;
 }
 
