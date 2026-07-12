@@ -83,13 +83,14 @@ function PageButton({ active, className, children, ...props }: PageButtonProps):
     <button
       type="button"
       className={cn(
-        'min-w-[32px] h-8 px-2 rounded-md text-xs font-medium transition-all duration-150',
+        'min-w-[32px] h-8 px-2 rounded-lg text-xs font-medium transition-all duration-150',
         active
-          ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
-          : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700',
-        props.disabled && 'opacity-40 cursor-not-allowed',
+          ? 'text-white shadow-md shadow-cyan-600/20'
+          : 'text-slate-500 hover:bg-slate-800 hover:text-slate-300 border border-slate-800/80',
+        props.disabled && 'opacity-30 cursor-not-allowed',
         className
       )}
+      style={active ? { background: 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)', border: '1px solid rgba(34,211,238,0.3)' } : undefined}
       {...props}
     >
       {children}

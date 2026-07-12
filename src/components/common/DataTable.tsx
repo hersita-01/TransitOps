@@ -51,10 +51,13 @@ function SkeletonRows({ cols }: { cols: number }): React.JSX.Element {
   return (
     <>
       {Array.from({ length: 5 }).map((_, i) => (
-        <tr key={i} className="border-b border-slate-700/50">
+        <tr key={i} className="border-b border-slate-700/30">
           {Array.from({ length: cols }).map((__, j) => (
-            <td key={j} className="px-4 py-3">
-              <div className="h-4 bg-slate-700 rounded animate-pulse" style={{ width: `${60 + Math.random() * 40}%` }} />
+            <td key={j} className="px-4 py-3.5">
+              <div
+                className="h-3.5 rounded-md shimmer"
+                style={{ width: `${55 + (j * 13 + i * 7) % 40}%` }}
+              />
             </td>
           ))}
         </tr>
@@ -152,24 +155,24 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className={cn('overflow-hidden rounded-xl border border-slate-700/60')}>
+      <div className={cn('overflow-hidden rounded-xl border border-slate-700/50 shadow-lg shadow-black/20')}>
         <div className="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar">
           <table className="w-full text-sm relative">
             {/* Head */}
             <thead className="sticky top-0 z-20">
-              <tr className="border-b border-slate-700 bg-slate-800 shadow-sm">
+              <tr className="border-b border-slate-700/60" style={{ background: 'rgba(15, 23, 42, 0.95)' }}>
                 {visibleColumns.map((col, idx) => (
                 <th
                   key={col.key}
                   scope="col"
-                  style={col.width ? { width: col.width } : undefined}
+                  style={{ background: 'rgba(15, 23, 42, 0.95)', ...(col.width ? { width: col.width } : {}) }}
                   className={cn(
                     cellPadding,
-                    'text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap bg-slate-800',
+                    'text-[11px] font-semibold text-slate-500 uppercase tracking-widest whitespace-nowrap',
                     col.align === 'center' && 'text-center',
                     col.align === 'right' && 'text-right',
-                    col.sortable && 'cursor-pointer select-none hover:text-slate-200 transition-colors',
-                    idx === 0 && 'sticky left-0 z-30 border-r border-slate-700/50'
+                    col.sortable && 'cursor-pointer select-none hover:text-slate-300 transition-colors',
+                    idx === 0 && 'sticky left-0 z-30 border-r border-slate-700/40'
                   )}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
                   aria-sort={
@@ -203,9 +206,9 @@ export function DataTable<T>({
                   key={keyExtractor(row)}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   className={cn(
-                    'border-b border-slate-700/40 bg-slate-800/30',
-                    'hover:bg-slate-700/40 transition-colors duration-100',
-                    onRowClick && 'cursor-pointer',
+                    'border-b border-slate-700/30 group',
+                    'transition-colors duration-100',
+                    onRowClick ? 'cursor-pointer hover:bg-cyan-500/5' : 'hover:bg-slate-700/30',
                     rowClassName?.(row)
                   )}
                 >
@@ -214,11 +217,13 @@ export function DataTable<T>({
                       key={col.key}
                       className={cn(
                         cellPadding,
-                        'text-slate-300 whitespace-nowrap',
+                        'text-slate-300 whitespace-nowrap transition-colors duration-100',
                         col.align === 'center' && 'text-center',
                         col.align === 'right' && 'text-right',
-                        idx === 0 && 'sticky left-0 z-10 bg-slate-800/90 border-r border-slate-700/50 backdrop-blur-sm group-hover:bg-slate-700/90 transition-colors'
+                        idx === 0 && 'sticky left-0 z-10 border-r border-slate-700/40 backdrop-blur-sm',
+                        idx === 0 && (onRowClick ? 'group-hover:bg-cyan-950/40' : 'group-hover:bg-slate-800/90')
                       )}
+                      style={idx === 0 ? { background: 'inherit' } : undefined}
                     >
                       {col.accessor(row)}
                     </td>

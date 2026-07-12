@@ -78,7 +78,7 @@ export function Sidebar({
         className={cn(
           // Base
           'fixed top-0 left-0 h-full z-50 flex flex-col',
-          'bg-slate-900 border-r border-slate-700/60',
+          'border-r border-slate-800/80',
           'transition-all duration-250 ease-in-out',
           // Desktop: always visible, collapsible width
           'lg:translate-x-0',
@@ -87,19 +87,21 @@ export function Sidebar({
           isOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full w-[260px] lg:translate-x-0',
           'print:hidden'
         )}
+        style={{ background: 'rgba(5, 10, 25, 0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
       >
         {/* Logo / Brand */}
         <div className={cn(
-          'flex items-center gap-3 px-4 border-b border-slate-700/60 shrink-0',
-          'h-16 transition-all duration-200'
+          'flex items-center gap-3 px-4 border-b shrink-0',
+          'h-16 transition-all duration-200',
+          'border-slate-800/80'
         )}>
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 shrink-0 shadow-lg shadow-blue-500/25">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shrink-0 shadow-lg shadow-cyan-500/25">
             <Zap className="w-4 h-4 text-white" />
           </div>
           {!isCollapsed && (
             <div className="overflow-hidden">
               <span className="text-base font-bold text-white tracking-tight">TransitOps</span>
-              <p className="text-[10px] text-slate-400 leading-none mt-0.5">Fleet Operations</p>
+              <p className="text-[10px] text-slate-500 leading-none mt-0.5 tracking-wide uppercase">Fleet Operations</p>
             </div>
           )}
 
@@ -108,7 +110,7 @@ export function Sidebar({
             type="button"
             aria-label="Close navigation"
             onClick={onClose}
-            className="lg:hidden ml-auto flex items-center justify-center w-7 h-7 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="lg:hidden ml-auto flex items-center justify-center w-7 h-7 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -134,7 +136,7 @@ export function Sidebar({
         </nav>
 
         {/* Bottom items */}
-        <div className="px-3 py-3 border-t border-slate-700/60 space-y-0.5 shrink-0">
+        <div className="px-3 py-3 border-t border-slate-800/80 space-y-0.5 shrink-0">
           {BOTTOM_ITEMS.map((item) => (
             <SidebarLink
               key={item.id}
@@ -153,7 +155,7 @@ export function Sidebar({
             onClick={onToggleCollapse}
             className={cn(
               'hidden lg:flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg',
-              'text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all duration-150 text-sm',
+              'text-slate-600 hover:text-slate-400 hover:bg-slate-800/60 transition-all duration-150 text-sm',
               isCollapsed && 'justify-center'
             )}
           >
@@ -187,26 +189,27 @@ function SidebarLink({ item, isCollapsed, isActive, onClick }: SidebarLinkProps)
         'flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-150 group relative',
         'text-sm font-medium',
         isActive
-          ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800',
+          ? 'text-cyan-300 border border-cyan-500/20'
+          : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/60',
         isCollapsed && 'justify-center px-2'
       )}
+      style={isActive ? { background: 'rgba(34, 211, 238, 0.07)' } : undefined}
     >
       {/* Active indicator */}
       {isActive && (
         <span
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-blue-500 rounded-r-full"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-cyan-400 rounded-r-full shadow-[0_0_8px_rgba(34,211,238,0.6)]"
           aria-hidden
         />
       )}
 
-      <span className="shrink-0">{item.icon}</span>
+      <span className={cn('shrink-0 transition-colors duration-150', isActive ? 'text-cyan-400' : 'text-slate-500 group-hover:text-slate-300')}>{item.icon}</span>
 
       {!isCollapsed && (
         <>
           <span className="flex-1 truncate">{item.label}</span>
           {item.badge && (
-            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">
+            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/25">
               {item.badge}
             </span>
           )}
@@ -216,7 +219,7 @@ function SidebarLink({ item, isCollapsed, isActive, onClick }: SidebarLinkProps)
       {/* Tooltip on collapsed */}
       {isCollapsed && (
         <div
-          className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 shadow-lg whitespace-nowrap
+          className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-slate-300 shadow-xl whitespace-nowrap
                      opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 z-50"
           aria-hidden
         >

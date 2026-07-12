@@ -49,24 +49,18 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
 
         {/* Search */}
         <div className="relative hidden sm:flex items-center max-w-xs w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-600 pointer-events-none" />
           <input
             id="global-search"
             type="search"
-            placeholder="Search vehicles, drivers…"
+            placeholder="Search or press Ctrl+K…"
             aria-label="Global search"
-            className={cn(
-              'w-full pl-9 pr-14 py-2 rounded-lg text-sm',
-              'bg-slate-800 border border-slate-700',
-              'text-slate-300 placeholder:text-slate-500',
-              'focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500',
-              'transition-colors duration-150 cursor-text'
-            )}
+            className="w-full pl-9 pr-14 py-2 rounded-lg text-sm input-premium"
             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] text-slate-500 font-medium font-mono pointer-events-none">
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-700/50 border border-slate-600">Ctrl</kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-700/50 border border-slate-600">K</kbd>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] text-slate-600 font-medium font-mono pointer-events-none">
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-800/60 border border-slate-700/60">⌃</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-800/60 border border-slate-700/60">K</kbd>
           </div>
         </div>
       </div>
@@ -80,9 +74,10 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
             type="button"
             aria-label="Notifications (3 unread)"
             onClick={() => setShowNotifications((prev) => !prev)}
-            className="relative flex items-center justify-center w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors"
+            className="relative flex items-center justify-center w-9 h-9 rounded-lg border transition-all duration-150 text-slate-500 hover:text-slate-200 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80 btn-base"
+            style={{ background: 'rgba(15, 23, 42, 0.4)' }}
           >
-            <Bell className="w-4.5 h-4.5" />
+            <Bell className="w-4 h-4" />
             {/* Unread dot */}
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-slate-900" />
           </button>

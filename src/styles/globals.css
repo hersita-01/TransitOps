@@ -85,13 +85,6 @@ body {
   outline-offset: 2px;
 }
 
-/* ── Utility: Glass Card ─────────────────────────────────── */
-.glass-card {
-  background: rgba(30, 41, 59, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
-}
-
 /* ── Transitions ────────────────────────────────────────── */
 .transition-sidebar {
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
@@ -132,12 +125,27 @@ body {
 }
 
 @layer utilities {
+  /* ── Glass Variants ──────────────────────────────────── */
   .glass {
-    background: rgba(15, 23, 42, 0.5);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
+  .glass-card {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+  }
+  .glass-subtle {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* ── Ambient Grid Background ──────────────────────────── */
   .bg-ambient-grid {
     background-color: #030712;
     background-image: 

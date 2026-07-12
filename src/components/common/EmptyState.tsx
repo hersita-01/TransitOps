@@ -20,17 +20,19 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center py-16 px-6 text-center',
+        'flex flex-col items-center justify-center py-20 px-6 text-center',
         className
       )}
     >
-      <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 mb-5 shadow-inner shadow-white/5">
-        <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center shadow-lg">
-          {icon ?? <PackageOpen className="w-6 h-6 text-slate-400" />}
+      <div className="relative flex items-center justify-center w-20 h-20 rounded-2xl mb-6">
+        {/* Outer glow ring */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/40 shadow-inner" />
+        <div className="relative z-10 w-11 h-11 rounded-xl bg-slate-800/90 border border-slate-700/60 flex items-center justify-center shadow-md">
+          {icon ?? <PackageOpen className="w-5 h-5 text-slate-500" />}
         </div>
       </div>
-      <h3 className="text-base font-semibold text-slate-200 mb-1">{title}</h3>
-      <p className="text-sm text-slate-400 max-w-xs">{description}</p>
+      <h3 className="text-base font-semibold text-slate-300 mb-1.5 tracking-tight">{title}</h3>
+      <p className="text-sm text-slate-500 max-w-xs leading-relaxed">{description}</p>
       {action && <div className="mt-6">{action}</div>}
     </div>
   );

@@ -200,36 +200,45 @@ export function DashboardPage(): React.JSX.Element {
 
       {/* ── 1. Welcome Header ───────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4
-                      rounded-2xl bg-gradient-to-r from-blue-900/30 via-slate-800/60 to-violet-900/20
-                      border border-slate-700/60 px-6 py-5">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Building2 className="w-4 h-4 text-slate-400" />
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      rounded-2xl px-6 py-5 relative overflow-hidden"
+           style={{ background: 'linear-gradient(135deg, rgba(5,10,25,0.9) 0%, rgba(10,20,50,0.85) 50%, rgba(20,10,45,0.8) 100%)', border: '1px solid rgba(34,211,238,0.12)' }}>
+        {/* Ambient accent */}
+        <div className="absolute top-0 left-0 w-64 h-full opacity-30 pointer-events-none"
+             style={{ background: 'radial-gradient(ellipse at 0% 50%, rgba(34,211,238,0.15) 0%, transparent 60%)' }}
+             aria-hidden />
+        <div className="absolute top-0 right-0 w-48 h-full opacity-20 pointer-events-none"
+             style={{ background: 'radial-gradient(ellipse at 100% 50%, rgba(139,92,246,0.15) 0%, transparent 60%)' }}
+             aria-hidden />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Building2 className="w-3.5 h-3.5 text-slate-600" />
+            <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">
               City Transit Authority
             </span>
           </div>
-          <h1 className="text-xl font-bold text-slate-100">
+          <h1 className="text-xl font-bold text-slate-50 leading-tight">
             {greeting},{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
+            <span className="text-gradient-cyan">
               {user?.firstName ?? 'Admin'}
             </span>{' '}
-            👋
+            <span role="img" aria-label="wave">👋</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm text-slate-500 mt-1">
             Here's your fleet overview for today.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="relative flex flex-wrap items-center gap-2 shrink-0">
           <button
             onClick={() => setShowCustomizeModal(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-400 hover:text-slate-200 transition-all duration-150 border btn-base"
+            style={{ background: 'rgba(15,23,42,0.5)', borderColor: 'rgba(51,65,85,0.6)' }}
           >
-            <Settings2 className="w-4 h-4" />
+            <Settings2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Customize</span>
           </button>
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-300">
-            <CalendarDays className="w-3.5 h-3.5 text-blue-400" />
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs text-slate-500 border"
+               style={{ background: 'rgba(15,23,42,0.4)', borderColor: 'rgba(51,65,85,0.4)' }}>
+            <CalendarDays className="w-3.5 h-3.5 text-cyan-600" />
             {formatDate(new Date().toISOString())}
           </div>
         </div>
@@ -237,14 +246,15 @@ export function DashboardPage(): React.JSX.Element {
 
       {/* ── Active Alerts Widget ────────────────────────────── */}
       {isWidgetVisible('active-alerts') && activeAlerts.length > 0 && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="rounded-xl border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4"
+             style={{ background: 'rgba(245,158,11,0.06)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <div className="w-9 h-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0 shadow-[0_0_16px_rgba(245,158,11,0.2)]">
+              <AlertTriangle className="w-4.5 h-4.5 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-amber-400">Fleet Alerts ({activeAlerts.length})</h3>
-              <p className="text-xs text-amber-500/80 mt-0.5">There are vehicles requiring immediate attention.</p>
+              <h3 className="text-sm font-semibold text-amber-400 tracking-tight">Fleet Alerts ({activeAlerts.length})</h3>
+              <p className="text-xs text-amber-600 mt-0.5">Vehicles requiring immediate attention.</p>
             </div>
           </div>
           <button
@@ -358,20 +368,21 @@ export function DashboardPage(): React.JSX.Element {
       {isWidgetVisible('summary') && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total Trips (Week)',  value: DASHBOARD_TRIP_ANALYTICS.totalTrips,         unit: 'trips',  color: 'text-blue-400' },
-          { label: 'Completed',          value: DASHBOARD_TRIP_ANALYTICS.completed,           unit: 'trips',  color: 'text-emerald-400' },
-          { label: 'Cancelled',          value: DASHBOARD_TRIP_ANALYTICS.cancelled,           unit: 'trips',  color: 'text-red-400' },
-          { label: 'Total Distance',     value: DASHBOARD_TRIP_ANALYTICS.totalDistanceKm.toLocaleString(), unit: 'km', color: 'text-purple-400' },
+          { label: 'Total Trips (Week)',  value: DASHBOARD_TRIP_ANALYTICS.totalTrips,         unit: 'trips',  color: 'text-cyan-400', glow: '0 0 20px rgba(34,211,238,0.15)' },
+          { label: 'Completed',          value: DASHBOARD_TRIP_ANALYTICS.completed,           unit: 'trips',  color: 'text-emerald-400', glow: '0 0 20px rgba(16,185,129,0.15)' },
+          { label: 'Cancelled',          value: DASHBOARD_TRIP_ANALYTICS.cancelled,           unit: 'trips',  color: 'text-red-400', glow: '0 0 20px rgba(239,68,68,0.1)' },
+          { label: 'Total Distance',     value: DASHBOARD_TRIP_ANALYTICS.totalDistanceKm.toLocaleString(), unit: 'km', color: 'text-purple-400', glow: '0 0 20px rgba(139,92,246,0.15)' },
         ].map((item) => (
           <div
             key={item.label}
-            className="rounded-2xl bg-slate-800/50 border border-slate-700/50 px-5 py-4"
+            className="rounded-2xl border border-slate-700/40 px-5 py-4 card-lift"
+            style={{ background: 'rgba(15,23,42,0.5)' }}
           >
-            <p className={`text-2xl font-bold ${item.color}`}>
+            <p className={`text-2xl font-bold tabular-nums ${item.color}`} style={{ textShadow: item.glow }}>
               {item.value}
-              <span className="text-sm font-medium text-slate-500 ml-1">{item.unit}</span>
+              <span className="text-sm font-medium text-slate-600 ml-1">{item.unit}</span>
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">{item.label}</p>
+            <p className="text-xs text-slate-500 mt-1 font-medium">{item.label}</p>
           </div>
         ))}
       </div>
