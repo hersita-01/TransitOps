@@ -8,7 +8,7 @@ Welcome to the **TransitOps** engineering team! Because TransitOps is developed 
 
 1. **Respect Domain Ownership**: Never modify source files outside your assigned role. Refer to [`OWNERSHIP_MATRIX.md`](OWNERSHIP_MATRIX.md) before creating or editing any file.
 2. **Standardized Communication**: All APIs must return standardized JSON structures as documented in [`API_RESPONSE_STANDARD.md`](API_RESPONSE_STANDARD.md).
-3. **Strict Git Workflow**: Always branch from `develop`. Never commit directly to `main` or `develop`. Refer to [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md).
+3. **Strict Git Workflow**: We follow a single-branch (`main`) workflow. Refer to [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md).
 4. **Code Quality**: Follow all linting, formatting, and structural guidelines outlined in [`CODING_STANDARDS.md`](CODING_STANDARDS.md).
 
 ---
@@ -25,21 +25,32 @@ To ensure robust security posture throughout the repository:
 
 ---
 
-## 3. Pull Request Process
+## 3. Development & Contribution Process
 
-1. Create your feature branch from `develop`:
+### Repository Strategy
+- **Single branch**: `main`
+
+Every developer must adhere to the following sequence:
+
+1. Pull latest changes with rebase:
    ```bash
-   git checkout develop
-   git pull origin develop
-   git checkout -b feature/<domain>-<short-description>
+   git pull origin main --rebase
    ```
-2. Commit changes using clear, descriptive semantic commit messages adhering to our [Coding Standards](CODING_STANDARDS.md#9-git-commit-style).
-3. Push your branch to remote:
+2. Complete ONLY your assigned task adhering to the [Ownership Matrix](OWNERSHIP_MATRIX.md).
+3. Test locally to ensure zero build errors or breaking changes.
+4. Stage and commit changes using semantic commit messages adhering to our [Coding Standards](CODING_STANDARDS.md#9-git-commit-style):
    ```bash
-   git push -u origin feature/<domain>-<short-description>
+   git add .
+   git commit -m "<type>(<scope>): <short description>"
    ```
-4. Open a Pull Request targeting `develop` and complete the Pull Request Template checklist.
-5. Request review from the appropriate peer or Integration Engineer.
+5. Pull latest changes with rebase before pushing:
+   ```bash
+   git pull origin main --rebase
+   ```
+6. Push directly to main:
+   ```bash
+   git push origin main
+   ```
 
 ---
 

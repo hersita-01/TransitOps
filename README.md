@@ -67,11 +67,19 @@ TransitOps/
 
 ## Git Workflow
 
-TransitOps follows a strict structured Git workflow to prevent merge conflicts and maintain code stability:
+TransitOps follows a single-branch workflow to maintain velocity during the hackathon:
 
-- **Primary Branches**: `main` (production-ready) and `develop` (integration branch).
-- **Feature Branches**: `feature/frontend`, `feature/backend`, `feature/database`, `feature/integration`.
-- **Workflow**: All development occurs on isolated feature branches. Changes must be submitted via Pull Request to `develop` with review approval before merging. Final releases merge from `develop` into `main`.
+### Repository Strategy
+- **Single branch**: `main`
+
+Every developer must:
+1. `git pull origin main --rebase`
+2. Complete ONLY their assigned task
+3. Test locally
+4. `git add .`
+5. `git commit`
+6. `git pull origin main --rebase`
+7. `git push origin main`
 
 Refer to [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md) for detailed guidelines.
 

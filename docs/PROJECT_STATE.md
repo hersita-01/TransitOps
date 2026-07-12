@@ -41,6 +41,8 @@
 
 ## Next Recommended Task
 
-1. **Database Engineer**: Branch off `develop` to `feature/database` and initialize Prisma schema in `server/prisma/` and shared contracts in `shared/`.
-2. **Backend Engineer**: Branch off `develop` to `feature/backend` and initialize Express API server in `server/src/`.
-3. **Frontend Engineer**: Branch off `develop` to `feature/frontend` and initialize React client in `client/`.
+Every developer operates directly on the single `main` branch adhering to domain ownership rules:
+
+1. **Database Engineer**: Pull latest `main` with rebase, initialize Prisma schema in `server/prisma/` and shared contracts in `shared/`, test locally, and push to `main`.
+2. **Backend Engineer**: Pull latest `main` with rebase, initialize Express API server in `server/src/`, test locally, and push to `main`.
+3. **Frontend Engineer**: Pull latest `main` with rebase, initialize React client in `client/`, test locally, and push to `main`.

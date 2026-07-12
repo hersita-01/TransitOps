@@ -34,17 +34,14 @@ Developers must configure runtime environment variables without committing sensi
 
 ## Branch Strategy
 
-Before making any changes, verify you are working on the correct feature branch:
+TransitOps uses a single-branch (`main`) strategy:
 
-1. Always pull latest `develop` branch:
+1. Ensure you are on `main` and pull latest changes with rebase:
    ```bash
-   git checkout develop
-   git pull origin develop
+   git checkout main
+   git pull origin main --rebase
    ```
-2. Create your feature branch based on your role:
-   ```bash
-   git checkout -b feature/<domain>-<feature-name>
-   ```
+2. Complete ONLY your assigned domain task directly on `main`.
 
 ---
 

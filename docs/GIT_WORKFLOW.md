@@ -2,89 +2,59 @@
 
 ## Overview
 
-TransitOps uses a structured, Git-flow inspired branching model tailored for rapid hackathon collaboration. Clear branch isolation ensures zero merge conflicts between domain engineers.
+TransitOps uses a single-branch Git workflow tailored for rapid hackathon collaboration and minimal overhead.
 
 ---
 
-## Branch Structure
+## Repository Strategy
 
-### Core Protected Branches
+- **Single branch**: `main`
 
-- **`main`**
-  - **Purpose**: Stable production releases.
-  - **Rules**: Direct commits are **strictly forbidden**. Code enters `main` only via Pull Request from `develop` after full verification.
-- **`develop`**
-  - **Purpose**: Primary integration branch for active development.
-  - **Rules**: Direct commits are **strictly forbidden**. All feature branches branch from and merge back into `develop`.
+All engineering domains operate directly on the `main` branch. Strict domain ownership boundaries ensure zero merge conflicts between engineers.
 
 ---
 
-### Domain Feature Branches
+## Standard Development Workflow
 
-- **`feature/frontend`**
-  - **Owner**: Frontend Engineer
-  - **Scope**: Changes confined to `client/`.
-- **`feature/backend`**
-  - **Owner**: Backend Engineer
-  - **Scope**: Changes confined to `server/src`.
-- **`feature/database`**
-  - **Owner**: Database Engineer
-  - **Scope**: Changes confined to `server/prisma/` and `shared/`.
-- **`feature/integration`**
-  - **Owner**: Integration Engineer
-  - **Scope**: Changes confined to `README.md`, `docs/`, and `.github/`.
+Every developer must adhere strictly to the following sequence for every task:
+
+1. **Pull Latest Main with Rebase**:
+   Always sync your local repository before starting work:
+   ```bash
+   git pull origin main --rebase
+   ```
+
+2. **Complete ONLY Assigned Task**:
+   Restrict changes strictly to your assigned domain files (`client/`, `server/src`, `server/prisma`, `shared/`, or `docs/`).
+
+3. **Test Locally**:
+   Verify your code builds and passes validation tests locally.
+
+4. **Stage Changes**:
+   ```bash
+   git add .
+   ```
+
+5. **Commit Changes**:
+   Write a clean semantic commit message adhering to project coding standards:
+   ```bash
+   git commit -m "<type>(<scope>): <short description>"
+   ```
+
+6. **Re-Sync Before Pushing**:
+   Ensure no conflicts occurred while you were committing:
+   ```bash
+   git pull origin main --rebase
+   ```
+
+7. **Push to Main**:
+   ```bash
+   git push origin main
+   ```
 
 ---
 
-## Development Flow
+## Conflict Prevention Rules
 
-```text
-       [feature/frontend] -----\
-                              \
-[main] <=== (PR) === [develop] <=== (PR) === [feature/backend]
-                              /
-       [feature/database] ----/
-```
-
-### 1. Feature Branch Creation
-
-Always create your domain feature branch from the latest commit on `develop`:
-
-```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/<domain>
-```
-
-### 2. Active Development
-
-- Make frequent, atomic commits adhering to project commit message guidelines.
-- Continuously sync with `develop` to prevent divergence:
-  ```bash
-  git fetch origin
-  git rebase origin/develop
-  ```
-
-### 3. Pull Request Submission
-
-- Push your feature branch to remote origin:
-  ```bash
-  git push -u origin feature/<domain>
-  ```
-- Open a Pull Request on GitHub targeting `develop`.
-- Fill out the mandatory Pull Request Template.
-
-### 4. Code Review
-
-- At least one peer review is required before merging.
-- Verify that no out-of-bounds files were modified outside the engineer's assigned domain ownership.
-
-### 5. Merge into `develop`
-
-- Once approved and CI checks pass, merge the Pull Request into `develop` using **Squash and Merge** or **Merge Commit** as agreed by the team.
-- Delete the remote feature branch post-merge.
-
-### 6. Final Merge into `main`
-
-- At sprint milestones or hackathon completion, the Integration Engineer opens a final Pull Request from `develop` into `main`.
-- Once verified, `develop` is merged into `main` and tagged with the release version.
+- Never edit files outside your assigned ownership domain.
+- Always run `git pull origin main --rebase` immediately before pushing.
