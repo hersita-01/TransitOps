@@ -63,8 +63,8 @@ export function VehicleFormModal({
           capacity: initialData.capacity,
           status: initialData.status,
           driverId: initialData.driverId,
-          purchaseDate: initialData.purchaseDate,
-          insuranceExpiry: initialData.insuranceExpiry,
+          purchaseDate: initialData.purchaseDate ? initialData.purchaseDate.slice(0, 10) : '',
+          insuranceExpiry: initialData.insuranceExpiry ? initialData.insuranceExpiry.slice(0, 10) : '',
         });
       } else {
         reset(getEmptyForm());

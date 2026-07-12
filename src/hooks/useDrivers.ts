@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Driver } from '@/types';
 import { driversApi } from '@/lib/api/drivers';
 import { checkBackendAvailable } from '@/lib/apiClient';
-import { MOCK_DRIVERS } from '@/mock/drivers';
+import { getMockDrivers, saveMockDrivers } from '@/lib/mockStorage';
 import { useToast } from '@/context/ToastContext';
 
 interface UseDriversResult {
@@ -35,26 +35,39 @@ export function useDrivers(): UseDriversResult {
       setDrivers(data);
       setIsUsingMock(false);
     } catch {
-      setDrivers(MOCK_DRIVERS);
+      setDrivers(getMockDrivers());
       setIsUsingMock(true);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const handleMockChange = () => {
+      setDrivers(getMockDrivers());
+    };
+    window.addEventListener('transitops_mock_change', handleMockChange);
+    return () => window.removeEventListener('transitops_mock_change', handleMockChange);
+  }, [load]);
 
   const addDriver = useCallback(async (data: Partial<Driver>) => {
     if (isUsingMock) {
       const newDriver: Driver = {
         ...(data as Driver),
         id: `drv_${Math.random().toString(36).substr(2, 9)}`,
+        status: data.status || 'available',
         joinedAt: new Date().toISOString(),
+        rating: 5.0,
         totalTrips: 0,
         totalDistance: 0,
         avatar: null,
       };
-      setDrivers((prev) => [newDriver, ...prev]);
+      setDrivers((prev) => {
+        const next = [newDriver, ...prev];
+        saveMockDrivers(next);
+        return next;
+      });
       toast('success', 'Driver Added', `${data.firstName} ${data.lastName} added (demo mode).`);
       return;
     }
@@ -70,13 +83,17 @@ export function useDrivers(): UseDriversResult {
 
   const updateDriver = useCallback(async (id: string, data: Partial<Driver>) => {
     if (isUsingMock) {
-      setDrivers((prev) => prev.map((d) => d.id === id ? { ...d, ...data } : d));
+      setDrivers((prev) => {
+        const next = prev.map((d) => (d.id === id ? { ...d, ...data } : d));
+        saveMockDrivers(next);
+        return next;
+      });
       toast('success', 'Driver Updated', 'Changes saved (demo mode).');
       return;
     }
     try {
       const updated = await driversApi.update(id, data);
-      setDrivers((prev) => prev.map((d) => d.id === id ? updated : d));
+      setDrivers((prev) => prev.map((d) => (d.id === id ? updated : d)));
       toast('success', 'Driver Updated', 'Changes saved successfully.');
     } catch (err) {
       toast('error', 'Failed to Update Driver', 'Please try again.');
@@ -86,7 +103,11 @@ export function useDrivers(): UseDriversResult {
 
   const deleteDriver = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setDrivers((prev) => prev.filter((d) => d.id !== id));
+      setDrivers((prev) => {
+        const next = prev.filter((d) => d.id !== id);
+        saveMockDrivers(next);
+        return next;
+      });
       toast('success', 'Driver Deleted', 'Driver removed (demo mode).');
       return;
     }

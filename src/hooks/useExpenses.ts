@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Expense } from '@/types';
 import { expensesApi } from '@/lib/api/expenses';
 import { checkBackendAvailable } from '@/lib/apiClient';
-import { MOCK_EXPENSES } from '@/mock/expenses';
+import { getMockExpenses, saveMockExpenses } from '@/lib/mockStorage';
 import { useToast } from '@/context/ToastContext';
 
 interface UseExpensesResult {
@@ -35,14 +35,21 @@ export function useExpenses(): UseExpensesResult {
       setExpenses(data);
       setIsUsingMock(false);
     } catch {
-      setExpenses(MOCK_EXPENSES);
+      setExpenses(getMockExpenses());
       setIsUsingMock(true);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const handleMockChange = () => {
+      setExpenses(getMockExpenses());
+    };
+    window.addEventListener('transitops_mock_change', handleMockChange);
+    return () => window.removeEventListener('transitops_mock_change', handleMockChange);
+  }, [load]);
 
   const addExpense = useCallback(async (data: Partial<Expense>) => {
     if (isUsingMock) {
@@ -50,7 +57,11 @@ export function useExpenses(): UseExpensesResult {
         ...(data as Expense),
         id: `exp_${Math.random().toString(36).substr(2, 9)}`,
       };
-      setExpenses((prev) => [newExpense, ...prev]);
+      setExpenses((prev) => {
+        const next = [newExpense, ...prev];
+        saveMockExpenses(next);
+        return next;
+      });
       toast('success', 'Expense Logged', 'Expense record added (demo mode).');
       return;
     }
@@ -66,13 +77,17 @@ export function useExpenses(): UseExpensesResult {
 
   const updateExpense = useCallback(async (id: string, data: Partial<Expense>) => {
     if (isUsingMock) {
-      setExpenses((prev) => prev.map((e) => e.id === id ? { ...e, ...data } : e));
+      setExpenses((prev) => {
+        const next = prev.map((e) => (e.id === id ? { ...e, ...data } : e));
+        saveMockExpenses(next);
+        return next;
+      });
       toast('success', 'Expense Updated', 'Changes saved (demo mode).');
       return;
     }
     try {
       const updated = await expensesApi.update(id, data);
-      setExpenses((prev) => prev.map((e) => e.id === id ? updated : e));
+      setExpenses((prev) => prev.map((e) => (e.id === id ? updated : e)));
       toast('success', 'Expense Updated', 'Changes saved successfully.');
     } catch (err) {
       toast('error', 'Failed to Update Expense', 'Please try again.');
@@ -82,7 +97,11 @@ export function useExpenses(): UseExpensesResult {
 
   const deleteExpense = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setExpenses((prev) => prev.filter((e) => e.id !== id));
+      setExpenses((prev) => {
+        const next = prev.filter((e) => e.id !== id);
+        saveMockExpenses(next);
+        return next;
+      });
       toast('success', 'Expense Deleted', 'Record removed (demo mode).');
       return;
     }

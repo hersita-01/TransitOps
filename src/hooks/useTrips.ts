@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Trip } from '@/types';
 import { tripsApi } from '@/lib/api/trips';
 import { checkBackendAvailable } from '@/lib/apiClient';
-import { MOCK_TRIPS } from '@/mock/trips';
+import { getMockTrips, saveMockTrips } from '@/lib/mockStorage';
 import { useToast } from '@/context/ToastContext';
 
 interface UseTripsResult {
@@ -38,22 +38,34 @@ export function useTrips(): UseTripsResult {
       setTrips(data);
       setIsUsingMock(false);
     } catch {
-      setTrips(MOCK_TRIPS);
+      setTrips(getMockTrips());
       setIsUsingMock(true);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const handleMockChange = () => {
+      setTrips(getMockTrips());
+    };
+    window.addEventListener('transitops_mock_change', handleMockChange);
+    return () => window.removeEventListener('transitops_mock_change', handleMockChange);
+  }, [load]);
 
   const addTrip = useCallback(async (data: Partial<Trip>) => {
     if (isUsingMock) {
       const newTrip: Trip = {
         ...(data as Trip),
         id: `trp_${Math.random().toString(36).substr(2, 9)}`,
+        status: data.status || 'scheduled',
       };
-      setTrips((prev) => [newTrip, ...prev]);
+      setTrips((prev) => {
+        const next = [newTrip, ...prev];
+        saveMockTrips(next);
+        return next;
+      });
       toast('success', 'Trip Added', `Trip from ${data.origin} to ${data.destination} added (demo mode).`);
       return;
     }
@@ -69,13 +81,17 @@ export function useTrips(): UseTripsResult {
 
   const updateTrip = useCallback(async (id: string, data: Partial<Trip>) => {
     if (isUsingMock) {
-      setTrips((prev) => prev.map((t) => t.id === id ? { ...t, ...data } : t));
+      setTrips((prev) => {
+        const next = prev.map((t) => (t.id === id ? { ...t, ...data } : t));
+        saveMockTrips(next);
+        return next;
+      });
       toast('success', 'Trip Updated', 'Changes saved (demo mode).');
       return;
     }
     try {
       const updated = await tripsApi.update(id, data);
-      setTrips((prev) => prev.map((t) => t.id === id ? updated : t));
+      setTrips((prev) => prev.map((t) => (t.id === id ? updated : t)));
       toast('success', 'Trip Updated', 'Changes saved successfully.');
     } catch (err) {
       toast('error', 'Failed to Update Trip', 'Please try again.');
@@ -85,13 +101,17 @@ export function useTrips(): UseTripsResult {
 
   const dispatchTrip = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setTrips((prev) => prev.map((t) => t.id === id ? { ...t, status: 'dispatched', actualStart: new Date().toISOString() } : t));
+      setTrips((prev) => {
+        const next: Trip[] = prev.map((t) => (t.id === id ? { ...t, status: 'in_progress' as const, actualStart: new Date().toISOString() } : t));
+        saveMockTrips(next);
+        return next;
+      });
       toast('success', 'Trip Dispatched', 'Trip is now in progress (demo mode).');
       return;
     }
     try {
       const updated = await tripsApi.dispatch(id);
-      setTrips((prev) => prev.map((t) => t.id === id ? updated : t));
+      setTrips((prev) => prev.map((t) => (t.id === id ? updated : t)));
       toast('success', 'Trip Dispatched', 'Trip is now in progress.');
     } catch (err) {
       toast('error', 'Failed to Dispatch Trip', 'Please try again.');
@@ -101,13 +121,27 @@ export function useTrips(): UseTripsResult {
 
   const completeTrip = useCallback(async (id: string, payload?: { actualDistance?: number; fuelUsed?: number }) => {
     if (isUsingMock) {
-      setTrips((prev) => prev.map((t) => t.id === id ? { ...t, status: 'completed', actualEnd: new Date().toISOString(), distanceKm: payload?.actualDistance ?? t.distanceKm, fuelUsedLiters: payload?.fuelUsed ?? t.fuelUsedLiters } : t));
+      setTrips((prev) => {
+        const next: Trip[] = prev.map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                status: 'completed' as const,
+                actualEnd: new Date().toISOString(),
+                distanceKm: payload?.actualDistance ?? t.distanceKm,
+                fuelUsedLiters: payload?.fuelUsed ?? t.fuelUsedLiters,
+              }
+            : t
+        );
+        saveMockTrips(next);
+        return next;
+      });
       toast('success', 'Trip Completed', 'Trip marked as completed (demo mode).');
       return;
     }
     try {
       const updated = await tripsApi.complete(id, payload);
-      setTrips((prev) => prev.map((t) => t.id === id ? updated : t));
+      setTrips((prev) => prev.map((t) => (t.id === id ? updated : t)));
       toast('success', 'Trip Completed', 'Trip marked as completed.');
     } catch (err) {
       toast('error', 'Failed to Complete Trip', 'Please try again.');
@@ -117,13 +151,17 @@ export function useTrips(): UseTripsResult {
 
   const cancelTrip = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setTrips((prev) => prev.map((t) => t.id === id ? { ...t, status: 'cancelled' } : t));
+      setTrips((prev) => {
+        const next: Trip[] = prev.map((t) => (t.id === id ? { ...t, status: 'cancelled' as const } : t));
+        saveMockTrips(next);
+        return next;
+      });
       toast('success', 'Trip Cancelled', 'Trip cancelled (demo mode).');
       return;
     }
     try {
       const updated = await tripsApi.cancel(id);
-      setTrips((prev) => prev.map((t) => t.id === id ? updated : t));
+      setTrips((prev) => prev.map((t) => (t.id === id ? updated : t)));
       toast('success', 'Trip Cancelled', 'Trip has been cancelled.');
     } catch (err) {
       toast('error', 'Failed to Cancel Trip', 'Please try again.');
@@ -133,7 +171,11 @@ export function useTrips(): UseTripsResult {
 
   const deleteTrip = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setTrips((prev) => prev.filter((t) => t.id !== id));
+      setTrips((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        saveMockTrips(next);
+        return next;
+      });
       toast('success', 'Trip Deleted', 'Trip removed (demo mode).');
       return;
     }

@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Vehicle } from '@/types';
 import { vehiclesApi } from '@/lib/api/vehicles';
 import { checkBackendAvailable } from '@/lib/apiClient';
-import { MOCK_VEHICLES } from '@/mock/vehicles';
+import { getMockVehicles, saveMockVehicles } from '@/lib/mockStorage';
 import { useToast } from '@/context/ToastContext';
 
 interface UseVehiclesResult {
@@ -36,14 +36,21 @@ export function useVehicles(): UseVehiclesResult {
       setIsUsingMock(false);
     } catch {
       // Fallback to mock data
-      setVehicles(MOCK_VEHICLES);
+      setVehicles(getMockVehicles());
       setIsUsingMock(true);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const handleMockChange = () => {
+      setVehicles(getMockVehicles());
+    };
+    window.addEventListener('transitops_mock_change', handleMockChange);
+    return () => window.removeEventListener('transitops_mock_change', handleMockChange);
+  }, [load]);
 
   const addVehicle = useCallback(async (data: Partial<Vehicle>) => {
     if (isUsingMock) {
@@ -58,8 +65,12 @@ export function useVehicles(): UseVehiclesResult {
         location: null,
         assignedRoute: null,
       };
-      setVehicles((prev) => [newVehicle, ...prev]);
-      toast('success', 'Vehicle Added', `${data.plateNumber} has been added (demo mode).`);
+      setVehicles((prev) => {
+        const next = [newVehicle, ...prev];
+        saveMockVehicles(next);
+        return next;
+      });
+      toast('success', 'Vehicle Added', `${data.plateNumber || 'New vehicle'} has been added (demo mode).`);
       return;
     }
     try {
@@ -74,13 +85,17 @@ export function useVehicles(): UseVehiclesResult {
 
   const updateVehicle = useCallback(async (id: string, data: Partial<Vehicle>) => {
     if (isUsingMock) {
-      setVehicles((prev) => prev.map((v) => v.id === id ? { ...v, ...data } : v));
+      setVehicles((prev) => {
+        const next = prev.map((v) => (v.id === id ? { ...v, ...data } : v));
+        saveMockVehicles(next);
+        return next;
+      });
       toast('success', 'Vehicle Updated', 'Changes saved (demo mode).');
       return;
     }
     try {
       const updated = await vehiclesApi.update(id, data);
-      setVehicles((prev) => prev.map((v) => v.id === id ? updated : v));
+      setVehicles((prev) => prev.map((v) => (v.id === id ? updated : v)));
       toast('success', 'Vehicle Updated', 'Changes saved successfully.');
     } catch (err) {
       toast('error', 'Failed to Update Vehicle', 'Please try again.');
@@ -90,7 +105,11 @@ export function useVehicles(): UseVehiclesResult {
 
   const deleteVehicle = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setVehicles((prev) => prev.filter((v) => v.id !== id));
+      setVehicles((prev) => {
+        const next = prev.filter((v) => v.id !== id);
+        saveMockVehicles(next);
+        return next;
+      });
       toast('success', 'Vehicle Deleted', 'Vehicle removed (demo mode).');
       return;
     }

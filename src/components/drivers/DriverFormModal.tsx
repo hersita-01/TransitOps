@@ -68,12 +68,12 @@ export function DriverFormModal({
           address: initialData.address,
           licenseNumber: initialData.licenseNumber,
           licenseCategory: initialData.licenseCategory,
-          licenseExpiry: initialData.licenseExpiry,
+          licenseExpiry: initialData.licenseExpiry ? initialData.licenseExpiry.slice(0, 10) : '',
           experienceYears: initialData.experienceYears,
           emergencyContact: initialData.emergencyContact,
           medicalFitnessStatus: initialData.medicalFitnessStatus,
           status: initialData.status,
-          joinedAt: initialData.joinedAt.split('T')[0],
+          joinedAt: initialData.joinedAt ? initialData.joinedAt.slice(0, 10) : '',
           vehicleId: initialData.vehicleId,
         });
       } else {

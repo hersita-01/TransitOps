@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { MaintenanceRecord } from '@/types';
 import { maintenanceApi } from '@/lib/api/maintenance';
 import { checkBackendAvailable } from '@/lib/apiClient';
-import { MOCK_MAINTENANCE } from '@/mock/maintenance';
+import { getMockMaintenance, saveMockMaintenance } from '@/lib/mockStorage';
 import { useToast } from '@/context/ToastContext';
 
 interface UseMaintenanceResult {
@@ -35,14 +35,21 @@ export function useMaintenance(): UseMaintenanceResult {
       setRecords(data);
       setIsUsingMock(false);
     } catch {
-      setRecords(MOCK_MAINTENANCE);
+      setRecords(getMockMaintenance());
       setIsUsingMock(true);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const handleMockChange = () => {
+      setRecords(getMockMaintenance());
+    };
+    window.addEventListener('transitops_mock_change', handleMockChange);
+    return () => window.removeEventListener('transitops_mock_change', handleMockChange);
+  }, [load]);
 
   const addRecord = useCallback(async (data: Partial<MaintenanceRecord>) => {
     if (isUsingMock) {
@@ -50,7 +57,11 @@ export function useMaintenance(): UseMaintenanceResult {
         ...(data as MaintenanceRecord),
         id: `maint_${Math.random().toString(36).substr(2, 9)}`,
       };
-      setRecords((prev) => [newRecord, ...prev]);
+      setRecords((prev) => {
+        const next = [newRecord, ...prev];
+        saveMockMaintenance(next);
+        return next;
+      });
       toast('success', 'Maintenance Added', 'Service record added (demo mode).');
       return;
     }
@@ -66,13 +77,17 @@ export function useMaintenance(): UseMaintenanceResult {
 
   const updateRecord = useCallback(async (id: string, data: Partial<MaintenanceRecord>) => {
     if (isUsingMock) {
-      setRecords((prev) => prev.map((r) => r.id === id ? { ...r, ...data } : r));
+      setRecords((prev) => {
+        const next = prev.map((r) => (r.id === id ? { ...r, ...data } : r));
+        saveMockMaintenance(next);
+        return next;
+      });
       toast('success', 'Maintenance Updated', 'Changes saved (demo mode).');
       return;
     }
     try {
       const updated = await maintenanceApi.update(id, data);
-      setRecords((prev) => prev.map((r) => r.id === id ? updated : r));
+      setRecords((prev) => prev.map((r) => (r.id === id ? updated : r)));
       toast('success', 'Maintenance Updated', 'Changes saved successfully.');
     } catch (err) {
       toast('error', 'Failed to Update Maintenance', 'Please try again.');
@@ -82,7 +97,11 @@ export function useMaintenance(): UseMaintenanceResult {
 
   const deleteRecord = useCallback(async (id: string) => {
     if (isUsingMock) {
-      setRecords((prev) => prev.filter((r) => r.id !== id));
+      setRecords((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        saveMockMaintenance(next);
+        return next;
+      });
       toast('success', 'Maintenance Deleted', 'Record removed (demo mode).');
       return;
     }
