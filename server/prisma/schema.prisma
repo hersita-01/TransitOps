@@ -1,0 +1,139 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  DISPATCHER
+  FLEET_MANAGER
+  SAFETY_OFFICER
+  FINANCE
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  RETIRED
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  SUSPENDED
+}
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vehicle {
+  id                 Int           @id @default(autoincrement())
+  registrationNumber String        @unique
+  model              String
+  type               String
+  capacity           Int
+  odometer           Int
+  acquisitionCost    Float
+  status             VehicleStatus
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  trips        Trip[]
+  maintenances Maintenance[]
+  fuelLogs     FuelLog[]
+  expenses     Expense[]
+}
+
+model Driver {
+  id            Int          @id @default(autoincrement())
+  name          String
+  licenseNumber String       @unique
+  category      String
+  expiryDate    DateTime
+  contact       String
+  safetyScore   Float
+  status        DriverStatus
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  trips Trip[]
+}
+
+model Trip {
+  id              Int        @id @default(autoincrement())
+  vehicleId       Int
+  driverId        Int
+  source          String
+  destination     String
+  cargoWeight     Float
+  plannedDistance Float
+  actualDistance  Float?
+  fuelUsed        Float?
+  status          TripStatus
+  startTime       DateTime
+  endTime         DateTime?
+  createdAt       DateTime   @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  driver  Driver  @relation(fields: [driverId], references: [id])
+}
+
+model Maintenance {
+  id          Int               @id @default(autoincrement())
+  vehicleId   Int
+  serviceType String
+  description String
+  cost        Float
+  status      MaintenanceStatus
+  startDate   DateTime
+  endDate     DateTime?
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+}
+
+model FuelLog {
+  id        Int      @id @default(autoincrement())
+  vehicleId Int
+  liters    Float
+  cost      Float
+  date      DateTime
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+}
+
+model Expense {
+  id          Int      @id @default(autoincrement())
+  vehicleId   Int
+  category    String
+  amount      Float
+  description String
+  date        DateTime
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+}
