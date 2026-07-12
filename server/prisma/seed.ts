@@ -1,39 +1,41 @@
 import { PrismaClient, Role, VehicleStatus, DriverStatus, TripStatus, MaintenanceStatus } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding data...');
+  const defaultPasswordHash = bcrypt.hashSync('password123', 10);
 
   // Users
   const admin = await prisma.user.upsert({
     where: { email: 'admin@transitops.in' },
-    update: {},
-    create: { name: 'Ravi Kumar', email: 'admin@transitops.in', password: 'hashedpassword', role: Role.ADMIN }
+    update: { password: defaultPasswordHash },
+    create: { name: 'Ravi Kumar', email: 'admin@transitops.in', password: defaultPasswordHash, role: Role.ADMIN }
   });
 
   const dispatcher = await prisma.user.upsert({
     where: { email: 'dispatcher@transitops.in' },
-    update: {},
-    create: { name: 'Priya Sharma', email: 'dispatcher@transitops.in', password: 'hashedpassword', role: Role.DISPATCHER }
+    update: { password: defaultPasswordHash },
+    create: { name: 'Priya Sharma', email: 'dispatcher@transitops.in', password: defaultPasswordHash, role: Role.DISPATCHER }
   });
 
   const fleetManager = await prisma.user.upsert({
     where: { email: 'fleet@transitops.in' },
-    update: {},
-    create: { name: 'Anil Desai', email: 'fleet@transitops.in', password: 'hashedpassword', role: Role.FLEET_MANAGER }
+    update: { password: defaultPasswordHash },
+    create: { name: 'Anil Desai', email: 'fleet@transitops.in', password: defaultPasswordHash, role: Role.FLEET_MANAGER }
   });
 
   const safetyOfficer = await prisma.user.upsert({
     where: { email: 'safety@transitops.in' },
-    update: {},
-    create: { name: 'Vikram Singh', email: 'safety@transitops.in', password: 'hashedpassword', role: Role.SAFETY_OFFICER }
+    update: { password: defaultPasswordHash },
+    create: { name: 'Vikram Singh', email: 'safety@transitops.in', password: defaultPasswordHash, role: Role.SAFETY_OFFICER }
   });
 
   const finance = await prisma.user.upsert({
     where: { email: 'finance@transitops.in' },
-    update: {},
-    create: { name: 'Neha Gupta', email: 'finance@transitops.in', password: 'hashedpassword', role: Role.FINANCE }
+    update: { password: defaultPasswordHash },
+    create: { name: 'Neha Gupta', email: 'finance@transitops.in', password: defaultPasswordHash, role: Role.FINANCE }
   });
 
   // Vehicles
