@@ -43,6 +43,7 @@ function getLabel(status: string): string {
 
 export function StatusBadge({ status, className }: StatusBadgeProps): React.JSX.Element {
   const styles = STATUS_STYLES[status] ?? 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+  const isPulsing = status === 'active' || status === 'in_progress';
 
   return (
     <span
@@ -52,8 +53,16 @@ export function StatusBadge({ status, className }: StatusBadgeProps): React.JSX.
         className
       )}
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+      {isPulsing ? (
+        <span className="relative flex h-2 w-2 mr-0.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-cyan-400" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+        </span>
+      ) : (
+        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+      )}
       {getLabel(status)}
     </span>
   );
 }
+

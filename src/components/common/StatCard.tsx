@@ -2,6 +2,8 @@ import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/utils';
 import type { KPICard } from '@/types';
+import { AnimatedWrapper } from '@/components/animations/AnimatedWrapper';
+import { CountUpStat } from '@/components/animations/CountUpStat';
 
 // ── Color map ────────────────────────────────────────────────
 
@@ -53,45 +55,50 @@ export function StatCard({ card, icon, className }: StatCardProps): React.JSX.El
   const colors = COLOR_STYLES[card.color];
 
   return (
-    <article
-      className={cn(
-        'relative overflow-hidden rounded-2xl p-5',
-        'bg-slate-800/60 border border-slate-700/60',
-        'hover:border-slate-600 hover:bg-slate-800/80 transition-all duration-200 hover-card-up',
-        'group cursor-default',
-        className
-      )}
-      aria-label={`${card.title}: ${card.value}${card.unit ? ' ' + card.unit : ''}`}
-    >
-      {/* Background accent glow */}
-      <div
+    <AnimatedWrapper>
+      <article
         className={cn(
-          'absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-30',
-          colors.bg
+          'relative overflow-hidden rounded-2xl p-5',
+          'bg-slate-800/60 border border-slate-700/60',
+          'hover:border-slate-600 hover:bg-slate-800/80 transition-all duration-300 hover:shadow-glow-cyan hover:-translate-y-1 hover-card-up',
+          'group cursor-default',
+          className
         )}
-        aria-hidden
-      />
-
-      <div className="relative flex items-start justify-between gap-4">
-        {/* Icon */}
-        <div className={cn('flex items-center justify-center w-10 h-10 rounded-xl shrink-0', colors.icon)}>
-          {icon}
-        </div>
-
-        {/* Trend */}
-        <TrendIndicator direction={card.trend} value={card.trendValue} />
-      </div>
-
-      {/* Value */}
-      <div className="relative mt-4">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-bold text-slate-100 tabular-nums">{card.value}</span>
-          {card.unit && (
-            <span className="text-sm font-medium text-slate-400">{card.unit}</span>
+        aria-label={`${card.title}: ${card.value}${card.unit ? ' ' + card.unit : ''}`}
+      >
+        {/* Background accent glow */}
+        <div
+          className={cn(
+            'absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-30',
+            colors.bg
           )}
+          aria-hidden
+        />
+
+        <div className="relative flex items-start justify-between gap-4">
+          {/* Icon */}
+          <div className={cn('flex items-center justify-center w-10 h-10 rounded-xl shrink-0', colors.icon)}>
+            {icon}
+          </div>
+
+          {/* Trend */}
+          <TrendIndicator direction={card.trend} value={card.trendValue} />
         </div>
-        <p className="mt-0.5 text-xs text-slate-400 font-medium tracking-wide uppercase">{card.title}</p>
-      </div>
-    </article>
+
+        {/* Value */}
+        <div className="relative mt-4">
+          <div className="flex items-baseline gap-1.5">
+            <CountUpStat
+              targetValue={card.value}
+              className="text-2xl font-bold text-slate-100 tabular-nums"
+            />
+            {card.unit && (
+              <span className="text-sm font-medium text-slate-400">{card.unit}</span>
+            )}
+          </div>
+          <p className="mt-0.5 text-xs text-slate-400 font-medium tracking-wide uppercase">{card.title}</p>
+        </div>
+      </article>
+    </AnimatedWrapper>
   );
 }

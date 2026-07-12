@@ -3,6 +3,7 @@ import { cn } from '@/utils';
 import { Sidebar } from '@/components/common/Sidebar';
 import { Header } from '@/components/common/Header';
 import { CommandPalette } from '@/components/ui/CommandPalette';
+import { PageTransition } from '@/components/animations/PageTransition';
 import { useSidebar } from '@/hooks/useSidebar';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useDemo } from '@/context/DemoContext';
@@ -29,7 +30,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-slate-950 bg-ambient-grid flex">
       {/* Sidebar */}
       <Sidebar
         isOpen={isOpen}
@@ -49,7 +50,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
         )}
       >
         {/* Sticky header */}
-        <Header onMenuClick={toggle} />
+        <Header onMenuClick={toggle} className="glass" />
 
         {/* Page content */}
         <main
@@ -58,7 +59,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
           className="flex-1 pt-16 min-h-0 print:pt-0"
         >
           <div className="p-4 lg:p-6 xl:p-8 max-w-screen-2xl mx-auto">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </div>
         </main>
 
