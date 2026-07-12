@@ -30,8 +30,8 @@ function dec(min: number, max: number, p = 2): number {
 
 // ─── Data Pools ───────────────────────────────────────────────────────────────
 
-// Mostly Indian names (~80%), a few American (~20%)
-const indianFirst = [
+// 100% Indian names
+const firstNames = [
   'Aarav', 'Arjun', 'Aditya', 'Ajay', 'Amitabh', 'Anil', 'Anoop', 'Anupam',
   'Balamurugan', 'Biju', 'Dinesh', 'Ganesh', 'Girish', 'Gopal', 'Harish',
   'Jagdish', 'Jeevan', 'Karthik', 'Kiran', 'Krishna', 'Mahesh', 'Manoj',
@@ -40,17 +40,13 @@ const indianFirst = [
   'Senthil', 'Shiva', 'Suresh', 'Thiru', 'Uday', 'Venkat', 'Vijay',
   'Vikram', 'Vinod', 'Yogesh', 'Yuvaraj', 'Zubair',
 ];
-const americanFirst = ['James', 'Michael', 'Robert', 'David', 'William'];
-const allFirst = [...indianFirst, ...americanFirst];
 
-const indianLast = [
+const lastNames = [
   'Bose', 'Choudhury', 'Das', 'Desai', 'Gowda', 'Gupta', 'Iyer', 'Jain',
   'Kumar', 'Menon', 'Nair', 'Patel', 'Patil', 'Pillai', 'Rao', 'Reddy',
   'Sharma', 'Singh', 'Sinha', 'Srinivasan', 'Subramanian', 'Thakur',
   'Verma', 'Yadav',
 ];
-const americanLast = ['Johnson', 'Smith', 'Williams', 'Brown', 'Jones'];
-const allLast = [...indianLast, ...americanLast];
 
 // Indian state codes & typical district numbers
 const stateInfo: { code: string; districts: number[] }[] = [
@@ -141,10 +137,6 @@ const routes: { source: string; destination: string; distKm: number }[] = [
   { source: 'Pune',          destination: 'Nagpur',       distKm: 706  },
   { source: 'Coimbatore',    destination: 'Kochi',        distKm: 186  },
   { source: 'Vijayawada',    destination: 'Visakhapatnam',distKm: 350  },
-  // A few American routes (~15%)
-  { source: 'Los Angeles',   destination: 'Phoenix',      distKm: 600  },
-  { source: 'Houston',       destination: 'Dallas',       distKm: 385  },
-  { source: 'Chicago',       destination: 'Detroit',      distKm: 460  },
 ];
 
 const maintenanceServices = [
@@ -241,10 +233,8 @@ async function main() {
     else if (i > 72) status = DriverStatus.SUSPENDED;
     else             status = DriverStatus.AVAILABLE;
 
-    // ~20% American names
-    const useAmerican = i % 5 === 0;
-    const firstName = useAmerican ? pick(americanFirst) : pick(indianFirst);
-    const lastName  = useAmerican ? pick(americanLast)  : pick(indianLast);
+    const firstName = pick(firstNames);
+    const lastName  = pick(lastNames);
 
     let lic: string;
     do { lic = indianLicense(); } while (usedLicenses.has(lic));
