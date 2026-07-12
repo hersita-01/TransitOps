@@ -5,7 +5,6 @@
 // ──────────────────────────────────────────────────────────────
 
 import type {
-  Trip,
   MaintenanceRecord,
   Expense,
   KPICard,
@@ -16,10 +15,11 @@ import type {
   User,
 } from '@/types';
 
-import { MOCK_DRIVERS } from '@/mock/drivers';
 import { MOCK_VEHICLES } from '@/mock/vehicles';
+import { MOCK_DRIVERS } from '@/mock/drivers';
+import { MOCK_TRIPS } from '@/mock/trips';
 
-export { MOCK_VEHICLES, MOCK_DRIVERS };
+export { MOCK_VEHICLES, MOCK_DRIVERS, MOCK_TRIPS };
 
 // ── Current User ────────────────────────────────────────────
 
@@ -35,112 +35,7 @@ export const MOCK_CURRENT_USER: User = {
 
 // ── Drivers ─────────────────────────────────────────────────
 
-// ── Trips ───────────────────────────────────────────────────
-
-export const MOCK_TRIPS: Trip[] = [
-  {
-    id: 'trp_001',
-    vehicleId: 'veh_001',
-    driverId: 'drv_001',
-    routeId: 'rte_001',
-    status: 'in_progress',
-    origin: 'JFK Airport, Queens',
-    destination: 'Midtown Manhattan',
-    scheduledStart: '2025-07-11T08:00:00Z',
-    scheduledEnd: '2025-07-11T09:00:00Z',
-    actualStart: '2025-07-11T08:05:00Z',
-    actualEnd: null,
-    distanceKm: 28.4,
-    fuelUsedLiters: null,
-    passengerCount: 12,
-    notes: null,
-  },
-  {
-    id: 'trp_002',
-    vehicleId: 'veh_003',
-    driverId: 'drv_002',
-    routeId: 'rte_002',
-    status: 'in_progress',
-    origin: 'Penn Station, Manhattan',
-    destination: 'Newark Liberty Airport',
-    scheduledStart: '2025-07-11T08:30:00Z',
-    scheduledEnd: '2025-07-11T09:30:00Z',
-    actualStart: '2025-07-11T08:32:00Z',
-    actualEnd: null,
-    distanceKm: 22.1,
-    fuelUsedLiters: null,
-    passengerCount: 24,
-    notes: null,
-  },
-  {
-    id: 'trp_003',
-    vehicleId: 'veh_005',
-    driverId: 'drv_003',
-    routeId: 'rte_003',
-    status: 'scheduled',
-    origin: 'LaGuardia Airport',
-    destination: 'Downtown Brooklyn',
-    scheduledStart: '2025-07-11T10:00:00Z',
-    scheduledEnd: '2025-07-11T11:00:00Z',
-    actualStart: null,
-    actualEnd: null,
-    distanceKm: 19.8,
-    fuelUsedLiters: null,
-    passengerCount: null,
-    notes: 'VIP transfer - handle with priority',
-  },
-  {
-    id: 'trp_004',
-    vehicleId: 'veh_002',
-    driverId: 'drv_004',
-    routeId: null,
-    status: 'completed',
-    origin: 'Grand Central, Manhattan',
-    destination: 'Stamford, CT',
-    scheduledStart: '2025-07-11T06:00:00Z',
-    scheduledEnd: '2025-07-11T07:15:00Z',
-    actualStart: '2025-07-11T06:02:00Z',
-    actualEnd: '2025-07-11T07:18:00Z',
-    distanceKm: 54.3,
-    fuelUsedLiters: 6.8,
-    passengerCount: 8,
-    notes: null,
-  },
-  {
-    id: 'trp_005',
-    vehicleId: 'veh_001',
-    driverId: 'drv_001',
-    routeId: 'rte_001',
-    status: 'completed',
-    origin: 'Midtown Manhattan',
-    destination: 'JFK Airport, Queens',
-    scheduledStart: '2025-07-10T16:00:00Z',
-    scheduledEnd: '2025-07-10T17:00:00Z',
-    actualStart: '2025-07-10T16:00:00Z',
-    actualEnd: '2025-07-10T17:05:00Z',
-    distanceKm: 29.1,
-    fuelUsedLiters: 4.2,
-    passengerCount: 15,
-    notes: null,
-  },
-  {
-    id: 'trp_006',
-    vehicleId: 'veh_003',
-    driverId: 'drv_002',
-    routeId: null,
-    status: 'cancelled',
-    origin: 'Wall Street, Manhattan',
-    destination: 'Long Island City',
-    scheduledStart: '2025-07-10T14:00:00Z',
-    scheduledEnd: '2025-07-10T15:00:00Z',
-    actualStart: null,
-    actualEnd: null,
-    distanceKm: 11.2,
-    fuelUsedLiters: null,
-    passengerCount: null,
-    notes: 'Client cancelled – weather conditions',
-  },
-];
+// ── Trips (Exported above) ──────────────────────────────────
 
 // ── Maintenance Records ──────────────────────────────────────
 
@@ -230,8 +125,8 @@ export const MOCK_KPI_CARDS: KPICard[] = [
   },
   {
     id: 'kpi_trips',
-    title: "Today's Trips",
-    value: 6,
+    title: "All Trips",
+    value: MOCK_TRIPS.length,
     unit: 'trips',
     trend: 'up',
     trendValue: '+33% vs last week',

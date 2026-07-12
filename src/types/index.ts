@@ -6,7 +6,7 @@
 
 export type VehicleStatus = 'active' | 'idle' | 'maintenance' | 'offline';
 export type DriverStatus = 'available' | 'on_trip' | 'on_leave' | 'inactive' | 'suspended';
-export type TripStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+export type TripStatus = 'draft' | 'scheduled' | 'dispatched' | 'in_progress' | 'completed' | 'cancelled';
 export type MaintenanceStatus = 'pending' | 'in_progress' | 'completed' | 'overdue';
 export type ExpenseCategory = 'fuel' | 'maintenance' | 'tolls' | 'insurance' | 'other';
 export type UserRole = 'admin' | 'manager' | 'dispatcher' | 'viewer';
@@ -76,8 +76,12 @@ export interface Trip {
   actualStart: string | null;
   actualEnd: string | null;
   distanceKm: number;
+  cargoDescription: string | null;
+  cargoWeight: number | null; // kg
+  estimatedFuelLiters: number | null;
   fuelUsedLiters: number | null;
   passengerCount: number | null;
+  priority: 'low' | 'medium' | 'high' | 'critical';
   notes: string | null;
 }
 
