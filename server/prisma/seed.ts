@@ -6,8 +6,13 @@ import {
   TripStatus,
   MaintenanceStatus,
 } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+
+// Default demo password for all seeded users: TransitOps@2024
+// Change immediately in production.
+const SEED_PASSWORD = 'TransitOps@2024';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function randomInt(min: number, max: number) {
@@ -177,15 +182,18 @@ async function main() {
 
   // ── 1. Users ─────────────────────────────────────────────────────────────
   console.log('👤  Seeding users...');
+  // Hash is computed once and reused for all users to keep seed fast
+  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
   await prisma.user.createMany({
     data: [
-      { name: 'Ravi Kumar',      email: 'admin@transitops.in',      password: '$2b$10$hashedpassword', role: Role.ADMIN },
-      { name: 'Priya Sharma',    email: 'dispatch@transitops.in',   password: '$2b$10$hashedpassword', role: Role.DISPATCHER },
-      { name: 'Anil Desai',      email: 'fleet@transitops.in',      password: '$2b$10$hashedpassword', role: Role.FLEET_MANAGER },
-      { name: 'Vikram Singh',    email: 'safety@transitops.in',     password: '$2b$10$hashedpassword', role: Role.SAFETY_OFFICER },
-      { name: 'Neha Gupta',      email: 'finance@transitops.in',    password: '$2b$10$hashedpassword', role: Role.FINANCE },
+      { name: 'Ravi Kumar',   email: 'admin@transitops.in',    password: passwordHash, role: Role.ADMIN },
+      { name: 'Priya Sharma', email: 'dispatch@transitops.in', password: passwordHash, role: Role.DISPATCHER },
+      { name: 'Anil Desai',   email: 'fleet@transitops.in',    password: passwordHash, role: Role.FLEET_MANAGER },
+      { name: 'Vikram Singh', email: 'safety@transitops.in',   password: passwordHash, role: Role.SAFETY_OFFICER },
+      { name: 'Neha Gupta',   email: 'finance@transitops.in',  password: passwordHash, role: Role.FINANCE },
     ],
   });
+  console.log(`   🔑  All users seeded with password: ${SEED_PASSWORD}`);
 
   // ── 2. Vehicles ───────────────────────────────────────────────────────────
   console.log('🚛  Seeding vehicles...');
