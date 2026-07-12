@@ -2,11 +2,11 @@ import React from 'react';
 import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatDateTime, humaniseKey } from '@/utils';
-import type { Expense, MaintenanceRecord, Trip } from '@/types';
+import type { Expense, MaintenanceRecord, Trip, Vehicle, Driver } from '@/types';
 
 interface AnalyticsTablesProps {
-  topVehicles: any[];
-  topDrivers: any[];
+  topVehicles: (Vehicle & { tripCount: number; dist: number })[];
+  topDrivers: (Driver & { tripCount: number })[];
   recentExpenses: Expense[];
   recentMaintenance: MaintenanceRecord[];
   recentTrips: Trip[];
@@ -20,14 +20,14 @@ export function AnalyticsTables({
   recentTrips
 }: AnalyticsTablesProps): React.JSX.Element {
 
-  const vehicleCols: ColumnDef<any>[] = [
+  const vehicleCols: ColumnDef<Vehicle & { tripCount: number; dist: number }>[] = [
     { key: 'plate', header: 'Plate', accessor: (v) => <span className="font-mono text-xs">{v.plateNumber}</span> },
     { key: 'make', header: 'Vehicle', accessor: (v) => <span className="text-sm font-medium">{v.make} {v.model}</span> },
     { key: 'trips', header: 'Total Trips', accessor: (v) => <span className="text-slate-300">{v.tripCount}</span> },
     { key: 'dist', header: 'Distance', accessor: (v) => <span className="text-slate-300">{v.dist} km</span> },
   ];
 
-  const driverCols: ColumnDef<any>[] = [
+  const driverCols: ColumnDef<Driver & { tripCount: number }>[] = [
     { key: 'name', header: 'Driver', accessor: (d) => <span className="text-sm font-medium">{d.firstName} {d.lastName}</span> },
     { key: 'trips', header: 'Total Trips', accessor: (d) => <span className="text-slate-300">{d.tripCount}</span> },
     { key: 'status', header: 'Status', accessor: (d) => <StatusBadge status={d.status} /> },

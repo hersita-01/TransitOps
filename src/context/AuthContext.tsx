@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { User } from '@/types';
 import { MOCK_CURRENT_USER } from '@/services/mockData';

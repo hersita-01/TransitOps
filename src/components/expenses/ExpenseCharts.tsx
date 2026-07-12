@@ -9,6 +9,18 @@ interface ChartsProps {
   expenses: Expense[];
 }
 
+interface TooltipPayload {
+  color: string;
+  name: string;
+  value: number;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+}
+
 export function ExpenseCharts({ expenses }: ChartsProps): React.JSX.Element {
   
   // 1. Process data for Category Breakdown
@@ -47,12 +59,12 @@ export function ExpenseCharts({ expenses }: ChartsProps): React.JSX.Element {
     ...dateMap[date]
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl">
           <p className="text-sm font-semibold text-slate-200 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry: TooltipPayload, index: number) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.name}: ${entry.value.toFixed(2)}
             </p>

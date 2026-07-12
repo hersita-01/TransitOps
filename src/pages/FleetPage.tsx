@@ -110,8 +110,8 @@ export function FleetPage(): React.JSX.Element {
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
       const dir = sort.direction === 'asc' ? 1 : -1;
-      let valA: any = a[sort.column as keyof Vehicle];
-      let valB: any = b[sort.column as keyof Vehicle];
+      let valA: string | number | null = a[sort.column as keyof Vehicle] as string | number | null;
+      let valB: string | number | null = b[sort.column as keyof Vehicle] as string | number | null;
       
       // Handle missing/null values
       if (valA == null) valA = '';

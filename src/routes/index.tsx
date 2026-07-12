@@ -1,27 +1,40 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
+import { Loader2 } from 'lucide-react';
 
-// Pages
-import { LoginPage }      from '@/pages/LoginPage';
-import { DashboardPage }  from '@/pages/DashboardPage';
-import { FleetPage }      from '@/pages/FleetPage';
-import { DriversPage }    from '@/pages/DriversPage';
-import { TripsPage }      from '@/pages/TripsPage';
-import { MaintenancePage } from '@/pages/MaintenancePage';
-import { ExpensesPage }   from '@/pages/ExpensesPage';
-import { AnalyticsPage }  from '@/pages/AnalyticsPage';
-import { SettingsPage }   from '@/pages/SettingsPage';
-import { ProfilePage }    from '@/pages/ProfilePage';
-import { NotFoundPage }   from '@/pages/NotFoundPage';
+// Lazy loaded pages
+const LoginPage       = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const DashboardPage   = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const FleetPage       = lazy(() => import('@/pages/FleetPage').then(m => ({ default: m.FleetPage })));
+const DriversPage     = lazy(() => import('@/pages/DriversPage').then(m => ({ default: m.DriversPage })));
+const TripsPage       = lazy(() => import('@/pages/TripsPage').then(m => ({ default: m.TripsPage })));
+const MaintenancePage = lazy(() => import('@/pages/MaintenancePage').then(m => ({ default: m.MaintenancePage })));
+const ExpensesPage    = lazy(() => import('@/pages/ExpensesPage').then(m => ({ default: m.ExpensesPage })));
+const AnalyticsPage   = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const SettingsPage    = lazy(() => import('@/pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const ProfilePage     = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const NotFoundPage    = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+
+function PageSuspense({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[calc(100vh-64px)] w-full items-center justify-center">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    }>
+      {children}
+    </Suspense>
+  );
+}
 
 export function AppRouter(): React.JSX.Element {
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login" element={<PageSuspense><LoginPage /></PageSuspense>} />
 
       {/* Protected dashboard routes — all share DashboardLayout */}
       <Route
@@ -29,7 +42,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <DashboardPage />
+              <PageSuspense><DashboardPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -39,7 +52,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <FleetPage />
+              <PageSuspense><FleetPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -49,7 +62,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <DriversPage />
+              <PageSuspense><DriversPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -59,7 +72,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <TripsPage />
+              <PageSuspense><TripsPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -69,7 +82,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <MaintenancePage />
+              <PageSuspense><MaintenancePage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -79,7 +92,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <ExpensesPage />
+              <PageSuspense><ExpensesPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -89,7 +102,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <AnalyticsPage />
+              <PageSuspense><AnalyticsPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -99,7 +112,7 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <SettingsPage />
+              <PageSuspense><SettingsPage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -109,14 +122,14 @@ export function AppRouter(): React.JSX.Element {
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <ProfilePage />
+              <PageSuspense><ProfilePage /></PageSuspense>
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
 
       {/* 404 */}
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<PageSuspense><NotFoundPage /></PageSuspense>} />
     </Routes>
   );
 }

@@ -162,7 +162,7 @@ export function TripDetailsModal({ open, onOpenChange, trip }: TripDetailsModalP
   );
 }
 
-function StatBox({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+function StatBox({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
   return (
     <div className="bg-slate-900/30 p-3 rounded-lg border border-slate-700/30">
       <div className="flex items-center gap-2 mb-1.5">

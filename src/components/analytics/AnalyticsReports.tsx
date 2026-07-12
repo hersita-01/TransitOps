@@ -1,12 +1,12 @@
 import React from 'react';
-import type { Driver, Trip, Expense } from '@/types';
+import type { Driver, Trip, Expense, Vehicle } from '@/types';
 
 interface AnalyticsReportsProps {
   drivers: Driver[];
   trips: Trip[];
   expenses: Expense[];
-  topVehicles: any[];
-  topDrivers: any[];
+  topVehicles: Vehicle[];
+  topDrivers: Driver[];
 }
 
 export function AnalyticsReports({
