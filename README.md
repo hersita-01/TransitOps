@@ -49,19 +49,30 @@ TransitOps/
 
 ---
 
-## Getting Started (placeholder)
-
-> **Note**: Application code modules (`client/`, `server/`, `shared/`) are initialized during Sprint 1.
+## Getting Started
 
 1. **Clone Repository**:
    ```bash
    git clone https://github.com/hersita-01/TransitOps.git
    cd TransitOps
    ```
-2. **Review Engineering Standards**:
-   Ensure you read `docs/CODING_STANDARDS.md`, `docs/GIT_WORKFLOW.md`, and `docs/OWNERSHIP_MATRIX.md` before starting development.
-3. **Environment Setup**:
-   See `docs/DEVELOPMENT_SETUP.md` for local toolchain and environment configuration requirements.
+
+2. **Frontend Setup (Root)**:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+3. **Backend Setup (`server/`)**:
+   ```bash
+   cd server
+   cp .env.example .env
+   npm install
+   npm run dev
+   ```
+
+4. **Review Engineering Standards**:
+   Ensure you read [`docs/CODING_STANDARDS.md`](docs/CODING_STANDARDS.md), [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md), and [`docs/OWNERSHIP_MATRIX.md`](docs/OWNERSHIP_MATRIX.md) before starting development.
 
 ---
 
