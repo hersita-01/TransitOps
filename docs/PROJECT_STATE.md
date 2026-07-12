@@ -38,7 +38,7 @@
 
 ### Pending Features
 - [ ] **Live Database Migrations Execution**: Applying Prisma migrations (`npx prisma migrate dev`) against live production/demo PostgreSQL server.
-- [ ] **Frontend Live API Wiring**: Transitioning UI service hooks (`src/services/mockData.ts`) to live Express REST API endpoints (`/api/v1/*`).
+- [x] **Frontend Live API Wiring (INT-DEBUG-001)**: Integrated `src/lib/apiClient.ts` and reactive hooks (`useVehicles`, `useDrivers`, `useTrips`, `useMaintenance`, `useExpenses`) with graceful fallback to `src/mock` data when the local backend/DB is unavailable.
 
 ---
 

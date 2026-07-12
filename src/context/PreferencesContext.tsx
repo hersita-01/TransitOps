@@ -88,7 +88,6 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
       // Default: dark
       applyTheme('dark');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Listen for system preference changes when theme === 'system'
