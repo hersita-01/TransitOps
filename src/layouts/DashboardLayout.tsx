@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '@/utils';
 import { Sidebar } from '@/components/common/Sidebar';
 import { Header } from '@/components/common/Header';
+import { CommandPalette } from '@/components/ui/CommandPalette';
 import { useSidebar } from '@/hooks/useSidebar';
 
 interface DashboardLayoutProps {
@@ -10,6 +11,18 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.Element {
   const { isOpen, isCollapsed, close, toggle, toggleCollapse } = useSidebar();
+  const [cmdOpen, setCmdOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCmdOpen((open) => !open);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 flex">
@@ -20,6 +33,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
         onClose={close}
         onToggleCollapse={toggleCollapse}
       />
+      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
 
       {/* Main area — pushes right of sidebar on desktop */}
       <div

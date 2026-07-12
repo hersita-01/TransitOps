@@ -7,6 +7,7 @@ import {
   ChevronDown,
   LogOut,
   User as UserIcon,
+  Info as InfoIcon,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/utils';
@@ -55,13 +56,18 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
             placeholder="Search vehicles, drivers…"
             aria-label="Global search"
             className={cn(
-              'w-full pl-9 pr-3 py-2 rounded-lg text-sm',
+              'w-full pl-9 pr-14 py-2 rounded-lg text-sm',
               'bg-slate-800 border border-slate-700',
               'text-slate-300 placeholder:text-slate-500',
               'focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500',
-              'transition-colors duration-150'
+              'transition-colors duration-150 cursor-text'
             )}
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
           />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] text-slate-500 font-medium font-mono pointer-events-none">
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-700/50 border border-slate-600">Ctrl</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-700/50 border border-slate-600">K</kbd>
+          </div>
         </div>
       </div>
 
@@ -88,11 +94,22 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
                 <span className="text-xs text-blue-400">3 unread</span>
               </div>
               {MOCK_NOTIFICATIONS.map((n) => (
-                <div key={n.id} className="px-4 py-3 hover:bg-slate-700/50 transition-colors border-b border-slate-700/40 last:border-0">
-                  <p className="text-sm text-slate-200">{n.title}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{n.time}</p>
+                <div key={n.id} className="px-4 py-3 hover:bg-slate-700/50 transition-colors border-b border-slate-700/40 last:border-0 cursor-pointer">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+                      <Bell className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-200">{n.title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{n.time}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
+              <div className="px-4 py-2 border-t border-slate-700 flex justify-between">
+                <button className="text-xs font-medium text-slate-400 hover:text-slate-200">Mark all read</button>
+                <button className="text-xs font-medium text-slate-400 hover:text-slate-200">Clear all</button>
+              </div>
             </div>
           )}
         </div>
@@ -138,7 +155,7 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
           {showUserMenu && (
             <div className="absolute right-0 top-11 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden py-1">
               <Link
-                to="/settings"
+                to="/profile"
                 className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-slate-100 transition-colors"
                 onClick={() => setShowUserMenu(false)}
               >
@@ -152,6 +169,25 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
               >
                 <Settings className="w-4 h-4 text-slate-400" />
                 Settings
+              </Link>
+              <button
+                type="button"
+                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-slate-100 transition-colors text-left"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  setShowNotifications(true);
+                }}
+              >
+                <Bell className="w-4 h-4 text-slate-400" />
+                Notifications
+              </button>
+              <Link
+                to="/settings"
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-slate-100 transition-colors"
+                onClick={() => setShowUserMenu(false)}
+              >
+                <InfoIcon className="w-4 h-4 text-slate-400" />
+                Help
               </Link>
               <div className="border-t border-slate-700 my-1" />
               <button

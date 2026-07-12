@@ -13,6 +13,7 @@ import { MaintenancePage } from '@/pages/MaintenancePage';
 import { ExpensesPage }   from '@/pages/ExpensesPage';
 import { AnalyticsPage }  from '@/pages/AnalyticsPage';
 import { SettingsPage }   from '@/pages/SettingsPage';
+import { ProfilePage }    from '@/pages/ProfilePage';
 import { NotFoundPage }   from '@/pages/NotFoundPage';
 
 export function AppRouter(): React.JSX.Element {
@@ -99,6 +100,16 @@ export function AppRouter(): React.JSX.Element {
           <ProtectedRoute>
             <DashboardLayout>
               <SettingsPage />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ProfilePage />
             </DashboardLayout>
           </ProtectedRoute>
         }

@@ -1,51 +1,49 @@
 import React, { useState } from 'react';
-import { Save, User, Bell, Shield, Palette } from 'lucide-react';
+import { Save, Building, Bell, Shield, Palette, Users, Check } from 'lucide-react';
 import { PageTitle } from '@/components/common/PageTitle';
-import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { cn } from '@/utils';
 
-type SettingsTab = 'profile' | 'notifications' | 'security' | 'appearance';
+type SettingsTab = 'general' | 'appearance' | 'notifications' | 'security' | 'roles';
 
 const TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNode }> = [
-  { id: 'profile',       label: 'Profile',       icon: <User className="w-4 h-4" /> },
+  { id: 'general',       label: 'General',        icon: <Building className="w-4 h-4" /> },
+  { id: 'appearance',    label: 'Appearance',     icon: <Palette className="w-4 h-4" /> },
   { id: 'notifications', label: 'Notifications',  icon: <Bell className="w-4 h-4" /> },
   { id: 'security',      label: 'Security',       icon: <Shield className="w-4 h-4" /> },
-  { id: 'appearance',    label: 'Appearance',     icon: <Palette className="w-4 h-4" /> },
+  { id: 'roles',         label: 'Role Management', icon: <Users className="w-4 h-4" /> },
 ];
 
 export function SettingsPage(): React.JSX.Element {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
-  const [saved, setSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+  const { toast } = useToast();
 
   function handleSave(): void {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    toast('success', 'Settings Saved', 'Your preferences have been successfully updated.');
   }
 
   return (
     <div>
       <PageTitle
         title="Settings"
-        subtitle="Manage your account and platform preferences"
+        subtitle="Manage your organization and platform preferences"
         breadcrumb={[{ label: 'TransitOps' }, { label: 'Settings' }]}
       />
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar tabs */}
-        <div className="lg:w-52 shrink-0">
+        <div className="lg:w-56 shrink-0">
           <nav className="space-y-1" aria-label="Settings navigation">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
-                id={`settings-tab-${tab.id}`}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-colors',
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-colors',
                   activeTab === tab.id
                     ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
                 )}
               >
                 {tab.icon}
@@ -56,56 +54,130 @@ export function SettingsPage(): React.JSX.Element {
         </div>
 
         {/* Content */}
-        <div className="flex-1 rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6">
-          {activeTab === 'profile' && (
-            <div id="settings-profile-panel">
-              <h2 className="text-base font-semibold text-slate-200 mb-5">Profile Information</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                {[
-                  { id: 'first-name', label: 'First Name', defaultValue: user?.firstName ?? '' },
-                  { id: 'last-name',  label: 'Last Name',  defaultValue: user?.lastName ?? '' },
-                  { id: 'email',      label: 'Email',      defaultValue: user?.email ?? '',    type: 'email', span: true },
-                ].map((field) => (
-                  <div key={field.id} className={field.span ? 'sm:col-span-2' : ''}>
-                    <label htmlFor={`settings-${field.id}`} className="block text-xs font-medium text-slate-400 mb-1.5">
-                      {field.label}
-                    </label>
-                    <input
-                      id={`settings-${field.id}`}
-                      type={field.type ?? 'text'}
-                      defaultValue={field.defaultValue}
-                      className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    />
+        <div className="flex-1 rounded-2xl bg-slate-900/50 border border-slate-700/60 p-6 min-h-[500px]">
+          
+          {activeTab === 'general' && (
+            <div className="animate-in fade-in duration-300">
+              <h2 className="text-lg font-bold text-slate-100 mb-6">General Settings</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Organization Name</label>
+                  <input type="text" defaultValue="TransitOps Global" className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Organization Logo</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-blue-400">TO</div>
+                    <button className="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors text-slate-200">Change Logo</button>
                   </div>
-                ))}
+                </div>
               </div>
-              <div className="mb-4">
-                <p className="text-xs font-medium text-slate-400 mb-1.5">Role</p>
-                <div className="px-3 py-2.5 rounded-lg bg-slate-700/50 border border-slate-600/50 text-sm text-slate-300 capitalize">
-                  {user?.role ?? 'admin'}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Timezone</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                    <option>UTC (Coordinated Universal Time)</option>
+                    <option>EST (Eastern Standard Time)</option>
+                    <option>PST (Pacific Standard Time)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Date Format</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                    <option>MM/DD/YYYY</option>
+                    <option>DD/MM/YYYY</option>
+                    <option>YYYY-MM-DD</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Currency</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                    <option>USD ($)</option>
+                    <option>EUR (€)</option>
+                    <option>GBP (£)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Language</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                    <option>English (US)</option>
+                    <option>Spanish</option>
+                    <option>French</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'appearance' && (
+            <div className="animate-in fade-in duration-300">
+              <h2 className="text-lg font-bold text-slate-100 mb-6">Appearance</h2>
+              
+              <div className="mb-8">
+                <label className="block text-xs font-semibold text-slate-400 uppercase mb-4">Theme</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { id: 'dark', label: 'Dark', bg: 'bg-slate-900', active: true },
+                    { id: 'light', label: 'Light', bg: 'bg-slate-100', active: false },
+                    { id: 'system', label: 'System', bg: 'bg-gradient-to-r from-slate-900 to-slate-100', active: false },
+                  ].map(theme => (
+                    <button key={theme.id} className={cn("rounded-xl border-2 p-3 text-left transition-all", theme.active ? "border-blue-500 bg-blue-500/5" : "border-slate-700 hover:border-slate-500")}>
+                      <div className={cn("w-full h-16 rounded-lg mb-3", theme.bg)} />
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-slate-200">{theme.label}</span>
+                        {theme.active && <Check className="w-4 h-4 text-blue-500" />}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Accent Color</label>
+                  <div className="flex gap-3">
+                    {['bg-blue-500', 'bg-violet-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500'].map((color, i) => (
+                      <button key={color} className={cn("w-8 h-8 rounded-full ring-2 ring-offset-2 ring-offset-slate-900 transition-all", color, i === 0 ? "ring-blue-500" : "ring-transparent hover:scale-110")} />
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900" />
+                    <span className="text-sm text-slate-200">Compact Mode (denser tables and lists)</span>
+                  </label>
+                  <label className="flex items-center gap-3">
+                    <input type="checkbox" className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900" />
+                    <span className="text-sm text-slate-200">Collapse sidebar by default</span>
+                  </label>
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'notifications' && (
-            <div id="settings-notifications-panel">
-              <h2 className="text-base font-semibold text-slate-200 mb-5">Notification Preferences</h2>
-              <div className="space-y-4">
+            <div className="animate-in fade-in duration-300">
+              <h2 className="text-lg font-bold text-slate-100 mb-6">Notification Preferences</h2>
+              
+              <div className="space-y-6">
                 {[
-                  { id: 'notif-maintenance', label: 'Maintenance Alerts', description: 'Get notified when a vehicle is due for service or overdue', defaultChecked: true },
-                  { id: 'notif-trips',       label: 'Trip Updates',       description: 'Notifications when trips start, end, or are cancelled', defaultChecked: true },
-                  { id: 'notif-fuel',        label: 'Low Fuel Alerts',    description: 'Alert when a vehicle fuel level drops below 20%', defaultChecked: true },
-                  { id: 'notif-driver',      label: 'Driver Status',      description: 'Updates when a driver goes on/off duty', defaultChecked: false },
-                ].map((item) => (
-                  <div key={item.id} className="flex items-start justify-between gap-4 p-4 rounded-xl bg-slate-700/40 border border-slate-700/60">
+                  { title: "Email Notifications", desc: "Receive daily summaries and critical alerts via email.", active: true },
+                  { title: "Push Notifications", desc: "Receive real-time alerts in the browser.", active: true },
+                  { title: "Maintenance Alerts", desc: "Notify when vehicles are due for service.", active: true },
+                  { title: "Trip Alerts", desc: "Notify when a trip starts, delays, or completes.", active: false },
+                  { title: "Expense Alerts", desc: "Notify when a high-value expense is logged.", active: true },
+                  { title: "Reminder Preferences", desc: "Send reminders for expiring driver licenses.", active: true },
+                ].map(item => (
+                  <div key={item.title} className="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
                     <div>
-                      <p className="text-sm font-medium text-slate-200">{item.label}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>
+                      <p className="text-sm font-semibold text-slate-200">{item.title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                      <input id={item.id} type="checkbox" defaultChecked={item.defaultChecked} className="sr-only peer" />
-                      <div className="w-10 h-5.5 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-blue-600" />
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input type="checkbox" defaultChecked={item.active} className="sr-only peer" />
+                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 border border-slate-600 peer-checked:border-blue-600" />
                     </label>
                   </div>
                 ))}
@@ -114,70 +186,114 @@ export function SettingsPage(): React.JSX.Element {
           )}
 
           {activeTab === 'security' && (
-            <div id="settings-security-panel">
-              <h2 className="text-base font-semibold text-slate-200 mb-5">Security Settings</h2>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="settings-current-password" className="block text-xs font-medium text-slate-400 mb-1.5">Current Password</label>
-                  <input id="settings-current-password" type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+            <div className="animate-in fade-in duration-300">
+              <h2 className="text-lg font-bold text-slate-100 mb-6">Security & Authentication</h2>
+              
+              <div className="space-y-6">
+                <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                  <h3 className="text-sm font-semibold text-slate-200 mb-4">Change Password</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <input type="password" placeholder="Current Password" className="px-3 py-2 rounded-lg text-sm bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-blue-500" />
+                    <input type="password" placeholder="New Password" className="px-3 py-2 rounded-lg text-sm bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-blue-500" />
+                    <input type="password" placeholder="Confirm Password" className="px-3 py-2 rounded-lg text-sm bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-blue-500" />
+                  </div>
+                  <button className="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-colors">Update Password</button>
                 </div>
-                <div>
-                  <label htmlFor="settings-new-password" className="block text-xs font-medium text-slate-400 mb-1.5">New Password</label>
-                  <input id="settings-new-password" type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+
+                <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-200">Two-Factor Authentication (2FA)</h3>
+                    <p className="text-xs text-slate-400 mt-1">Add an extra layer of security to your account using an authenticator app.</p>
+                  </div>
+                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0">Enable 2FA</button>
                 </div>
-                <div>
-                  <label htmlFor="settings-confirm-password" className="block text-xs font-medium text-slate-400 mb-1.5">Confirm New Password</label>
-                  <input id="settings-confirm-password" type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-700 border border-slate-600 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                </div>
-                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
-                  <p className="text-xs text-blue-300">Two-factor authentication is not yet configured. Enable it for enhanced security once backend integration is complete.</p>
+
+                <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                  <h3 className="text-sm font-semibold text-slate-200 mb-4">Session & Login History</h3>
+                  <div className="flex items-center gap-4 mb-4">
+                    <label className="text-sm text-slate-300">Session Timeout (minutes)</label>
+                    <input type="number" defaultValue={60} className="w-20 px-3 py-1.5 rounded-lg text-sm bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-blue-500 text-center" />
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-300">
+                      <thead className="text-xs text-slate-500 uppercase bg-slate-900/50">
+                        <tr>
+                          <th className="px-4 py-2 rounded-tl-lg">Date</th>
+                          <th className="px-4 py-2">IP Address</th>
+                          <th className="px-4 py-2">Device/Browser</th>
+                          <th className="px-4 py-2 rounded-tr-lg">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-700/50">
+                        <tr><td className="px-4 py-3">Today, 10:42 AM</td><td className="px-4 py-3 font-mono text-xs">192.168.1.42</td><td className="px-4 py-3">Windows / Chrome</td><td className="px-4 py-3 text-emerald-400">Success</td></tr>
+                        <tr><td className="px-4 py-3">Yesterday, 08:15 PM</td><td className="px-4 py-3 font-mono text-xs">192.168.1.105</td><td className="px-4 py-3">iOS / Safari</td><td className="px-4 py-3 text-emerald-400">Success</td></tr>
+                        <tr><td className="px-4 py-3">Oct 12, 02:30 AM</td><td className="px-4 py-3 font-mono text-xs">45.22.19.8</td><td className="px-4 py-3">Unknown / Firefox</td><td className="px-4 py-3 text-red-400">Failed</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {activeTab === 'appearance' && (
-            <div id="settings-appearance-panel">
-              <h2 className="text-base font-semibold text-slate-200 mb-5">Appearance</h2>
-              <p className="text-sm text-slate-400 mb-6">TransitOps is designed for a dark enterprise interface. Additional themes will be available in a future release.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[
-                  { id: 'theme-dark',  label: 'Dark (Default)', active: true,  bg: 'bg-slate-900' },
-                  { id: 'theme-light', label: 'Light',          active: false, bg: 'bg-slate-100' },
-                  { id: 'theme-auto',  label: 'System Auto',    active: false, bg: 'bg-gradient-to-r from-slate-900 to-slate-100' },
-                ].map((theme) => (
-                  <button
-                    key={theme.id}
-                    id={theme.id}
-                    type="button"
-                    className={cn(
-                      'rounded-xl border-2 p-3 text-left transition-colors',
-                      theme.active
-                        ? 'border-blue-500'
-                        : 'border-slate-700 hover:border-slate-500'
-                    )}
-                  >
-                    <div className={cn('w-full h-12 rounded-lg mb-2', theme.bg)} />
-                    <p className="text-xs font-medium text-slate-300">{theme.label}</p>
-                    {theme.active && <p className="text-[10px] text-blue-400 mt-0.5">Currently active</p>}
-                  </button>
-                ))}
+          {activeTab === 'roles' && (
+            <div className="animate-in fade-in duration-300">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-slate-100">Role Management</h2>
+                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-colors">
+                  Create Custom Role
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto border border-slate-700/60 rounded-xl bg-slate-800/30">
+                <table className="w-full text-left text-sm text-slate-300">
+                  <thead className="text-xs text-slate-400 uppercase bg-slate-800/80 border-b border-slate-700/60">
+                    <tr>
+                      <th className="px-4 py-3">Role Name</th>
+                      <th className="px-4 py-3 text-center">Read</th>
+                      <th className="px-4 py-3 text-center">Write</th>
+                      <th className="px-4 py-3 text-center">Delete</th>
+                      <th className="px-4 py-3 text-center">Export</th>
+                      <th className="px-4 py-3 text-center">Manage Users</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700/50">
+                    {[
+                      { role: 'Admin', p: [1, 1, 1, 1, 1] },
+                      { role: 'Fleet Manager', p: [1, 1, 0, 1, 0] },
+                      { role: 'Dispatcher', p: [1, 1, 0, 0, 0] },
+                      { role: 'Driver Manager', p: [1, 1, 0, 1, 0] },
+                      { role: 'Finance Officer', p: [1, 0, 0, 1, 0] },
+                      { role: 'Viewer', p: [1, 0, 0, 0, 0] },
+                    ].map(row => (
+                      <tr key={row.role} className="hover:bg-slate-800/50 transition-colors">
+                        <td className="px-4 py-3 font-medium text-slate-200">{row.role}</td>
+                        {row.p.map((val, i) => (
+                          <td key={i} className="px-4 py-3 text-center">
+                            {val ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <span className="text-slate-600">-</span>}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
 
-          {/* Save button */}
-          <div className="mt-6 pt-5 border-t border-slate-700/60 flex justify-end">
+          {/* Action Footer */}
+          <div className="mt-8 pt-5 border-t border-slate-700/60 flex justify-end">
             <button
-              id="settings-save-btn"
               type="button"
               onClick={handleSave}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-600/25"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-600/25"
             >
               <Save className="w-4 h-4" />
-              {saved ? 'Saved!' : 'Save Changes'}
+              Save Preferences
             </button>
           </div>
+
         </div>
       </div>
     </div>

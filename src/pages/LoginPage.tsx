@@ -174,6 +174,16 @@ export function LoginPage(): React.JSX.Element {
               </div>
             </div>
 
+            <div className="flex items-center justify-between mt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-950" />
+                <span className="text-xs text-slate-400">Remember me</span>
+              </label>
+              <a href="#" className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                Forgot password?
+              </a>
+            </div>
+
             {/* Error */}
             {error && (
               <div role="alert" className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2.5 text-sm text-red-400">
