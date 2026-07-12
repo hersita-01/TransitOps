@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRoutes from './auth.routes';
 import vehicleRoutes from './vehicle.routes';
 import driverRoutes from './driver.routes';
+import tripRoutes from './trip.routes';
 import rbacTestRoutes from './rbac-test.routes';
 
 const router = Router();
@@ -27,6 +28,9 @@ router.use('/vehicles', vehicleRoutes);
 
 // Driver endpoints
 router.use('/drivers', driverRoutes);
+
+// Trip endpoints
+router.use('/trips', tripRoutes);
 
 // RBAC Test endpoints (development only)
 if (process.env.NODE_ENV !== 'production') {
