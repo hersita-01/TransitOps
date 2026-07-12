@@ -6,291 +6,328 @@ import {
   Gauge,
   Fuel,
   Wrench,
-  ArrowRight,
+  MapPin,
   Clock,
+  CalendarDays,
+  Building2,
 } from 'lucide-react';
+// PageTitle not needed — welcome header is custom-built
+import { StatCard }     from '@/components/common/StatCard';
+import { StatusBadge }  from '@/components/common/StatusBadge';
+import { DataTable, type ColumnDef } from '@/components/common/DataTable';
+import { DashboardCard }           from '@/components/dashboard/DashboardCard';
+import { UtilizationChart }        from '@/components/dashboard/UtilizationChart';
+import { FuelCostChart }           from '@/components/dashboard/FuelCostChart';
+import { ActivityFeed }            from '@/components/dashboard/ActivityFeed';
+import { FleetStatusPanel }        from '@/components/dashboard/FleetStatusPanel';
+import { MaintenanceSummaryPanel } from '@/components/dashboard/MaintenanceSummaryPanel';
+import { useAuth }      from '@/context/AuthContext';
+import { formatDate, formatDateTime, getInitials } from '@/utils';
+import { MOCK_VEHICLES }    from '@/mock/vehicles';
+import { MOCK_DRIVERS }     from '@/mock/drivers';
+import { MOCK_TRIPS }       from '@/mock/trips';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import { PageTitle } from '@/components/common/PageTitle';
-import { StatCard } from '@/components/common/StatCard';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import {
-  MOCK_KPI_CARDS,
-  MOCK_TRIPS,
-  MOCK_VEHICLES,
-  MOCK_DRIVERS,
-  MOCK_TRIP_ANALYTICS,
-  MOCK_FUEL_SUMMARY,
-  MOCK_FLEET_STATUS,
-} from '@/services/mockData';
-import { formatDate, formatDateTime } from '@/utils';
+  DASHBOARD_KPI_CARDS,
+  DASHBOARD_FLEET_STATUS,
+  UTILIZATION_DATA,
+  DASHBOARD_FUEL_SUMMARY,
+  DASHBOARD_MAINTENANCE_SUMMARY,
+  DASHBOARD_TRIP_ANALYTICS,
+  UPCOMING_MAINTENANCE,
+  ACTIVITY_FEED,
+} from '@/mock/dashboard';
+import type { Trip } from '@/types';
+import type { FleetStatusDisplayItem } from '@/types/dashboard';
 
 // ── Icon map for KPI cards ────────────────────────────────────
 
 const ICON_MAP: Record<string, React.ReactNode> = {
-  Bus:    <Bus className="w-5 h-5" />,
-  Users:  <Users className="w-5 h-5" />,
-  Route:  <Route className="w-5 h-5" />,
-  Gauge:  <Gauge className="w-5 h-5" />,
-  Fuel:   <Fuel className="w-5 h-5" />,
+  Bus:    <Bus    className="w-5 h-5" />,
+  Users:  <Users  className="w-5 h-5" />,
+  Route:  <Route  className="w-5 h-5" />,
+  Gauge:  <Gauge  className="w-5 h-5" />,
+  Fuel:   <Fuel   className="w-5 h-5" />,
   Wrench: <Wrench className="w-5 h-5" />,
 };
 
-// ── Chart colors ─────────────────────────────────────────────
+// ── Fleet status display config ───────────────────────────────
 
-const FLEET_COLORS = {
-  active:      '#10b981',
-  idle:        '#f59e0b',
-  maintenance: '#3b82f6',
-  offline:     '#64748b',
-};
+const FLEET_STATUS_ITEMS: FleetStatusDisplayItem[] = [
+  {
+    label:       'Available',
+    count:       DASHBOARD_FLEET_STATUS.idle,
+    color:       'bg-emerald-500/15',
+    textColor:   'text-emerald-400',
+    borderColor: 'border-emerald-500/30',
+  },
+  {
+    label:       'On Trip',
+    count:       DASHBOARD_FLEET_STATUS.active,
+    color:       'bg-blue-500/15',
+    textColor:   'text-blue-400',
+    borderColor: 'border-blue-500/30',
+  },
+  {
+    label:       'Maintenance',
+    count:       DASHBOARD_FLEET_STATUS.maintenance,
+    color:       'bg-amber-500/15',
+    textColor:   'text-amber-400',
+    borderColor: 'border-amber-500/30',
+  },
+  {
+    label:       'Retired',
+    count:       DASHBOARD_FLEET_STATUS.offline,
+    color:       'bg-slate-500/15',
+    textColor:   'text-slate-400',
+    borderColor: 'border-slate-500/30',
+  },
+];
 
-// ── Component ────────────────────────────────────────────────
+// ── Recent trips table columns ────────────────────────────────
+
+const TRIP_COLUMNS: ColumnDef<Trip>[] = [
+  {
+    key:    'id',
+    header: 'Trip ID',
+    accessor: (t) => (
+      <span className="font-mono text-[11px] text-slate-400">
+        #{t.id.replace('trp_', '').toUpperCase()}
+      </span>
+    ),
+  },
+  {
+    key:    'driver',
+    header: 'Driver',
+    accessor: (t) => {
+      const d = MOCK_DRIVERS.find((d) => d.id === t.driverId);
+      if (!d) return <span className="text-slate-500 text-xs">—</span>;
+      return (
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">
+            {getInitials(d.firstName, d.lastName)}
+          </div>
+          <span className="text-xs text-slate-300">{d.firstName} {d.lastName}</span>
+        </div>
+      );
+    },
+  },
+  {
+    key:    'vehicle',
+    header: 'Vehicle',
+    accessor: (t) => {
+      const v = MOCK_VEHICLES.find((v) => v.id === t.vehicleId);
+      return (
+        <span className="text-xs font-mono text-slate-300">
+          {v?.plateNumber ?? t.vehicleId}
+        </span>
+      );
+    },
+  },
+  {
+    key:    'origin',
+    header: 'Origin',
+    accessor: (t) => (
+      <div className="flex items-center gap-1">
+        <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
+        <span className="text-xs text-slate-300 truncate max-w-[120px]">{t.origin}</span>
+      </div>
+    ),
+  },
+  {
+    key:    'destination',
+    header: 'Destination',
+    accessor: (t) => (
+      <div className="flex items-center gap-1">
+        <MapPin className="w-3 h-3 text-red-400 shrink-0" />
+        <span className="text-xs text-slate-300 truncate max-w-[120px]">{t.destination}</span>
+      </div>
+    ),
+  },
+  {
+    key:    'status',
+    header: 'Status',
+    accessor: (t) => <StatusBadge status={t.status} />,
+    sortable: true,
+  },
+  {
+    key:    'date',
+    header: 'Date',
+    accessor: (t) => (
+      <span className="flex items-center gap-1 text-[11px] text-slate-400">
+        <Clock className="w-3 h-3" />
+        {formatDateTime(t.scheduledStart)}
+      </span>
+    ),
+    sortable: true,
+  },
+];
+
+// ── Page Component ────────────────────────────────────────────
 
 export function DashboardPage(): React.JSX.Element {
-  const recentTrips = MOCK_TRIPS.slice(0, 5);
-  const activeVehicles = MOCK_VEHICLES.filter((v) => v.status === 'active');
-  const onDutyDrivers = MOCK_DRIVERS.filter((d) => d.status === 'on_trip' || d.status === 'available');
+  const { user } = useAuth();
 
-  const pieData = [
-    { name: 'Active',      value: MOCK_FLEET_STATUS.active,      fill: FLEET_COLORS.active },
-    { name: 'Idle',        value: MOCK_FLEET_STATUS.idle,        fill: FLEET_COLORS.idle },
-    { name: 'Maintenance', value: MOCK_FLEET_STATUS.maintenance, fill: FLEET_COLORS.maintenance },
-    { name: 'Offline',     value: MOCK_FLEET_STATUS.offline,     fill: FLEET_COLORS.offline },
-  ];
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  })();
+
+  const recentTrips = MOCK_TRIPS.slice(0, 6);
 
   return (
-    <div>
-      <PageTitle
-        title="Dashboard"
-        subtitle={`Good morning, Alex — here's your fleet overview for ${formatDate(new Date().toISOString())}`}
-        breadcrumb={[{ label: 'TransitOps' }, { label: 'Dashboard' }]}
-      />
+    <div className="space-y-6">
 
-      {/* ── KPI Cards ────────────────────────────────────────── */}
-      <section aria-label="Key performance indicators" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-        {MOCK_KPI_CARDS.map((card) => (
-          <StatCard
-            key={card.id}
-            card={card}
-            icon={ICON_MAP[card.icon] ?? <Gauge className="w-5 h-5" />}
-          />
-        ))}
-      </section>
-
-      {/* ── Main charts row ──────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        {/* Trip Volume Chart */}
-        <div className="xl:col-span-2 rounded-2xl bg-slate-800/60 border border-slate-700/60 p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-sm font-semibold text-slate-200">Weekly Trip Volume</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Trips and distance over the past 7 days</p>
-            </div>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30 font-medium">
-              This Week
+      {/* ── 1. Welcome Header ───────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4
+                      rounded-2xl bg-gradient-to-r from-blue-900/30 via-slate-800/60 to-violet-900/20
+                      border border-slate-700/60 px-6 py-5">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Building2 className="w-4 h-4 text-slate-400" />
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              City Transit Authority
             </span>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={MOCK_TRIP_ANALYTICS.weeklyData} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="tripGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="distanceGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#a855f7" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', fontSize: '12px', color: '#f1f5f9' }}
-                cursor={{ stroke: '#334155' }}
-              />
-              <Area type="monotone" dataKey="trips" name="Trips" stroke="#3b82f6" strokeWidth={2} fill="url(#tripGradient)" dot={false} activeDot={{ r: 4, fill: '#3b82f6' }} />
-              <Area type="monotone" dataKey="distance" name="Distance (km)" stroke="#a855f7" strokeWidth={2} fill="url(#distanceGradient)" dot={false} activeDot={{ r: 4, fill: '#a855f7' }} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <h1 className="text-xl font-bold text-slate-100">
+            {greeting},{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
+              {user?.firstName ?? 'Admin'}
+            </span>{' '}
+            👋
+          </h1>
+          <p className="text-sm text-slate-400 mt-0.5">
+            Here's your fleet overview for today.
+          </p>
         </div>
-
-        {/* Fleet Status Pie */}
-        <div className="rounded-2xl bg-slate-800/60 border border-slate-700/60 p-5">
-          <div className="mb-5">
-            <h2 className="text-sm font-semibold text-slate-200">Fleet Status</h2>
-            <p className="text-xs text-slate-400 mt-0.5">{MOCK_FLEET_STATUS.total} vehicles total</p>
-          </div>
-          <div className="flex justify-center">
-            <PieChart width={160} height={160}>
-              <Pie
-                data={pieData}
-                cx={80}
-                cy={80}
-                innerRadius={48}
-                outerRadius={72}
-                paddingAngle={3}
-                dataKey="value"
-                strokeWidth={0}
-              >
-                {pieData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.fill} />
-                ))}
-              </Pie>
-            </PieChart>
-          </div>
-          {/* Legend */}
-          <div className="mt-4 space-y-2">
-            {pieData.map((entry) => (
-              <div key={entry.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
-                  <span className="text-xs text-slate-400">{entry.name}</span>
-                </div>
-                <span className="text-xs font-semibold text-slate-200">{entry.value}</span>
-              </div>
-            ))}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-300">
+            <CalendarDays className="w-3.5 h-3.5 text-blue-400" />
+            {formatDate(new Date().toISOString())}
           </div>
         </div>
       </div>
 
-      {/* ── Bottom row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Recent Trips */}
-        <div className="xl:col-span-2 rounded-2xl bg-slate-800/60 border border-slate-700/60 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/60">
-            <h2 className="text-sm font-semibold text-slate-200">Recent Trips</h2>
-            <a href="/trips" className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium">
-              View all <ArrowRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
-          <div className="divide-y divide-slate-700/40">
-            {recentTrips.map((trip) => {
-              const driver = MOCK_DRIVERS.find((d) => d.id === trip.driverId);
-              return (
-                <div key={trip.id} className="px-5 py-3.5 hover:bg-slate-700/30 transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs font-mono text-slate-500">#{trip.id.toUpperCase()}</span>
-                        <StatusBadge status={trip.status} />
-                      </div>
-                      <p className="text-sm text-slate-200 font-medium truncate">
-                        {trip.origin} → {trip.destination}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-slate-400 flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          {driver ? `${driver.firstName} ${driver.lastName}` : 'Unassigned'}
-                        </span>
-                        <span className="text-xs text-slate-400 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatDateTime(trip.scheduledStart)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-semibold text-slate-200">{trip.distanceKm} km</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+      {/* ── 2. KPI Cards ────────────────────────────────────── */}
+      <section aria-label="Key performance indicators">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {DASHBOARD_KPI_CARDS.map((card) => (
+            <StatCard
+              key={card.id}
+              card={card}
+              icon={ICON_MAP[card.icon] ?? <Gauge className="w-5 h-5" />}
+            />
+          ))}
         </div>
+      </section>
 
-        {/* Active Fleet */}
-        <div className="rounded-2xl bg-slate-800/60 border border-slate-700/60 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/60">
-            <h2 className="text-sm font-semibold text-slate-200">Active Fleet</h2>
-            <a href="/fleet" className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium">
-              View all <ArrowRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
-          <div className="divide-y divide-slate-700/40">
-            {activeVehicles.map((vehicle) => {
-              const driver = MOCK_DRIVERS.find((d) => d.id === vehicle.driverId);
-              return (
-                <div key={vehicle.id} className="px-5 py-3.5">
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-sm font-semibold text-slate-200 font-mono">{vehicle.plateNumber}</span>
-                    <StatusBadge status={vehicle.status} />
-                  </div>
-                  <p className="text-xs text-slate-400">{vehicle.make} {vehicle.model}</p>
-                  {driver && (
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Driver: {driver.firstName} {driver.lastName}
-                    </p>
-                  )}
-                  {/* Fuel bar */}
-                  <div className="mt-2">
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
-                      <span className="flex items-center gap-1"><Fuel className="w-2.5 h-2.5" /> Fuel</span>
-                      <span>{vehicle.fuelLevel}%</span>
-                    </div>
-                    <div className="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${vehicle.fuelLevel}%`,
-                          backgroundColor: vehicle.fuelLevel > 50 ? '#10b981' : vehicle.fuelLevel > 25 ? '#f59e0b' : '#ef4444',
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+      {/* ── 3 + 5. Fleet Status & Utilization Chart ─────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* On-duty drivers mini list */}
-            <div className="px-5 py-3.5 border-t border-slate-700/60">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">On-Duty Drivers</p>
-              {onDutyDrivers.slice(0, 3).map((d) => (
-                <div key={d.id} className="flex items-center gap-2 mb-2 last:mb-0">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">
-                    {d.firstName[0]}{d.lastName[0]}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-300 font-medium truncate">{d.firstName} {d.lastName}</p>
-                  </div>
-                  <StatusBadge status={d.status} className="ml-auto shrink-0" />
-                </div>
-              ))}
-            </div>
+        {/* 3. Fleet Status */}
+        <DashboardCard
+          title="Fleet Status"
+          subtitle={`${DASHBOARD_FLEET_STATUS.total} vehicles registered`}
+          action={{ label: 'View fleet', href: '/fleet' }}
+        >
+          <FleetStatusPanel
+            items={FLEET_STATUS_ITEMS}
+            total={DASHBOARD_FLEET_STATUS.total}
+          />
+        </DashboardCard>
+
+        {/* 5. Fleet Utilization Chart */}
+        <DashboardCard
+          title="Fleet Utilization"
+          subtitle="Last 14 days · percentage of active fleet"
+          className="lg:col-span-2"
+        >
+          <div className="px-2 pt-4 pb-3">
+            <UtilizationChart data={UTILIZATION_DATA} height={190} />
           </div>
-        </div>
+        </DashboardCard>
       </div>
 
-      {/* ── Fuel summary strip ───────────────────────────────── */}
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* ── 4. Recent Trips Table ───────────────────────────── */}
+      <DashboardCard
+        title="Recent Trips"
+        subtitle={`Showing ${recentTrips.length} of ${MOCK_TRIPS.length} trips`}
+        action={{ label: 'View all trips', href: '/trips' }}
+      >
+        <div className="p-0">
+          <DataTable<Trip>
+            id="dashboard-trips-table"
+            columns={TRIP_COLUMNS}
+            data={recentTrips}
+            keyExtractor={(t) => t.id}
+            emptyTitle="No recent trips"
+            emptyDescription="Trips will appear here once scheduled."
+          />
+        </div>
+      </DashboardCard>
+
+      {/* ── 6 + 7 + 8. Charts & Panels ──────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* 6. Fuel Cost Chart */}
+        <DashboardCard
+          title="Monthly Fuel Cost"
+          subtitle="Liters consumed vs USD spend"
+          action={{ label: 'View expenses', href: '/expenses' }}
+          className="lg:col-span-2"
+        >
+          <div className="px-2 pt-4 pb-3">
+            <FuelCostChart
+              data={DASHBOARD_FUEL_SUMMARY.monthlyData}
+              height={200}
+            />
+          </div>
+        </DashboardCard>
+
+        {/* 7. Maintenance Summary */}
+        <DashboardCard
+          title="Maintenance"
+          subtitle="Upcoming & in-progress"
+          action={{ label: 'View all', href: '/maintenance' }}
+        >
+          <MaintenanceSummaryPanel
+            upcoming={UPCOMING_MAINTENANCE}
+            completedThisMonth={DASHBOARD_MAINTENANCE_SUMMARY.completedThisMonth}
+            inProgress={DASHBOARD_MAINTENANCE_SUMMARY.inProgress}
+          />
+        </DashboardCard>
+      </div>
+
+      {/* ── Trip analytics strip ──────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total Fuel (Month)', value: `${MOCK_FUEL_SUMMARY.totalLiters.toLocaleString()} L`, sub: 'Across all vehicles' },
-          { label: 'Fuel Cost (Month)',  value: `$${MOCK_FUEL_SUMMARY.totalCostUsd.toLocaleString()}`, sub: 'USD' },
-          { label: 'Avg Efficiency',    value: `${MOCK_FUEL_SUMMARY.avgEfficiencyKmPerLiter} km/L`, sub: 'Fleet average' },
+          { label: 'Total Trips (Week)',  value: DASHBOARD_TRIP_ANALYTICS.totalTrips,         unit: 'trips',  color: 'text-blue-400' },
+          { label: 'Completed',          value: DASHBOARD_TRIP_ANALYTICS.completed,           unit: 'trips',  color: 'text-emerald-400' },
+          { label: 'Cancelled',          value: DASHBOARD_TRIP_ANALYTICS.cancelled,           unit: 'trips',  color: 'text-red-400' },
+          { label: 'Total Distance',     value: DASHBOARD_TRIP_ANALYTICS.totalDistanceKm.toLocaleString(), unit: 'km', color: 'text-purple-400' },
         ].map((item) => (
-          <div key={item.label} className="rounded-2xl bg-slate-800/40 border border-slate-700/50 px-5 py-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
-              <Fuel className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 mb-0.5">{item.label}</p>
-              <p className="text-lg font-bold text-slate-100">{item.value}</p>
-              <p className="text-[10px] text-slate-500">{item.sub}</p>
-            </div>
+          <div
+            key={item.label}
+            className="rounded-2xl bg-slate-800/50 border border-slate-700/50 px-5 py-4"
+          >
+            <p className={`text-2xl font-bold ${item.color}`}>
+              {item.value}
+              <span className="text-sm font-medium text-slate-500 ml-1">{item.unit}</span>
+            </p>
+            <p className="text-xs text-slate-400 mt-0.5">{item.label}</p>
           </div>
         ))}
       </div>
+
+      {/* ── 8. Activity Feed ─────────────────────────────────── */}
+      <DashboardCard
+        title="Activity Feed"
+        subtitle="Recent system events across the platform"
+      >
+        <ActivityFeed items={ACTIVITY_FEED} maxHeight="400px" />
+      </DashboardCard>
+
     </div>
   );
 }
