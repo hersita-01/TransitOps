@@ -8,7 +8,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { FleetFilters, type FleetFilterState } from '@/components/fleet/FleetFilters';
 import { VehicleDetailsModal } from '@/components/fleet/VehicleDetailsModal';
 import { VehicleFormModal } from '@/components/fleet/VehicleFormModal';
-import { MOCK_VEHICLES } from '@/mock/vehicles';
+import { useVehicles } from '@/hooks/useVehicles';
 import { MOCK_DRIVERS } from '@/mock/drivers';
 import { formatDate, getInitials } from '@/utils';
 import type { Vehicle, SortState } from '@/types';
@@ -22,7 +22,7 @@ const INITIAL_FILTERS: FleetFilterState = {
 
 export function FleetPage(): React.JSX.Element {
   // ── State ──────────────────────────────────────────────────
-  const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+  const { vehicles, addVehicle, updateVehicle, deleteVehicle } = useVehicles();
   const [filters, setFilters] = useState<FleetFilterState>(INITIAL_FILTERS);
   const [sort, setSort] = useState<SortState>({ column: 'createdAt', direction: 'desc' });
   const [page, setPage] = useState(1);
@@ -59,30 +59,17 @@ export function FleetPage(): React.JSX.Element {
 
   const handleDeleteConfirm = () => {
     if (selectedVehicle) {
-      setVehicles((prev) => prev.filter((v) => v.id !== selectedVehicle.id));
+      deleteVehicle(selectedVehicle.id);
     }
   };
 
   const handleSave = (data: Partial<Vehicle>) => {
     if (selectedVehicle) {
       // Edit
-      setVehicles((prev) =>
-        prev.map((v) => (v.id === selectedVehicle.id ? { ...v, ...data } as Vehicle : v))
-      );
+      updateVehicle(selectedVehicle.id, data);
     } else {
       // Add
-      const newVehicle: Vehicle = {
-        ...(data as Vehicle),
-        id: `veh_${Math.random().toString(36).substr(2, 9)}`,
-        createdAt: new Date().toISOString(),
-        fuelLevel: 100,
-        mileage: 0,
-        lastServiceDate: new Date().toISOString(),
-        nextServiceDue: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-        location: null,
-        assignedRoute: null,
-      };
-      setVehicles((prev) => [newVehicle, ...prev]);
+      addVehicle(data);
     }
     setFormModalOpen(false);
   };

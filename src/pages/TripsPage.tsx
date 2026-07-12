@@ -5,7 +5,8 @@ import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Pagination } from '@/components/common/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { MOCK_TRIPS, MOCK_VEHICLES, MOCK_DRIVERS } from '@/services/mockData';
+import { MOCK_VEHICLES, MOCK_DRIVERS } from '@/services/mockData';
+import { useTrips } from '@/hooks/useTrips';
 import { formatDateTime } from '@/utils';
 import type { Trip } from '@/types';
 import { TripFilters, type TripFilterState } from '@/components/trips/TripFilters';
@@ -14,7 +15,7 @@ import { TripFormModal } from '@/components/trips/TripFormModal';
 
 export function TripsPage(): React.JSX.Element {
   // ── State ────────────────────────────────────────────────────────
-  const [trips, setTrips] = useState<Trip[]>(MOCK_TRIPS);
+  const { trips, addTrip, updateTrip, dispatchTrip, completeTrip, cancelTrip, deleteTrip } = useTrips();
   const [filters, setFilters] = useState<TripFilterState>({
     search: '',
     origin: '',
@@ -40,37 +41,25 @@ export function TripsPage(): React.JSX.Element {
 
   const handleSaveForm = (data: Partial<Trip>) => {
     if (selectedTrip) {
-      setTrips((prev) => prev.map((t) => (t.id === selectedTrip.id ? { ...t, ...data } as Trip : t)));
+      updateTrip(selectedTrip.id, data);
     } else {
-      const newTrip: Trip = {
-        ...(data as Trip),
-        id: `trp_${Math.random().toString(36).substring(2, 9)}`,
-        status: 'draft',
-        actualStart: null,
-        actualEnd: null,
-        fuelUsedLiters: null,
-        passengerCount: null,
-      };
-      setTrips((prev) => [newTrip, ...prev]);
+      addTrip(data);
     }
     setFormOpen(false);
   };
 
   const handleDelete = () => {
     if (selectedTrip) {
-      setTrips((prev) => prev.filter((t) => t.id !== selectedTrip.id));
+      deleteTrip(selectedTrip.id);
       setDeleteOpen(false);
     }
   };
 
   const handleUpdateStatus = (t: Trip, status: Trip['status']) => {
-    setTrips((prev) => prev.map((trip) => {
-      if (trip.id !== t.id) return trip;
-      const updates: Partial<Trip> = { status };
-      if (status === 'dispatched' || status === 'in_progress') updates.actualStart = new Date().toISOString();
-      if (status === 'completed') updates.actualEnd = new Date().toISOString();
-      return { ...trip, ...updates };
-    }));
+    if (status === 'dispatched' || status === 'in_progress') dispatchTrip(t.id);
+    else if (status === 'completed') completeTrip(t.id);
+    else if (status === 'cancelled') cancelTrip(t.id);
+    else updateTrip(t.id, { status });
   };
 
   // ── Derived Data ──────────────────────────────────────────────────

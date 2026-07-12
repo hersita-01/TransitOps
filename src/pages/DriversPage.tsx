@@ -4,7 +4,7 @@ import { PageTitle } from '@/components/common/PageTitle';
 import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Pagination } from '@/components/common/Pagination';
-import { MOCK_DRIVERS } from '@/services/mockData';
+import { useDrivers } from '@/hooks/useDrivers';
 import { formatDate, getInitials } from '@/utils';
 import type { Driver } from '@/types';
 import { MOCK_VEHICLES } from '@/mock/vehicles';
@@ -16,7 +16,7 @@ import { AssignVehicleModal } from '@/components/drivers/AssignVehicleModal';
 
 export function DriversPage(): React.JSX.Element {
   // ── State ────────────────────────────────────────────────────────
-  const [drivers, setDrivers] = useState<Driver[]>(MOCK_DRIVERS);
+  const { drivers, addDriver, updateDriver, deleteDriver } = useDrivers();
   const [filters, setFilters] = useState<DriverFilterState>({
     search: '',
     status: '',
@@ -43,28 +43,20 @@ export function DriversPage(): React.JSX.Element {
 
   const handleSaveForm = (data: Partial<Driver>) => {
     if (selectedDriver) {
-      setDrivers((prev) => prev.map((d) => (d.id === selectedDriver.id ? { ...d, ...data } as Driver : d)));
+      updateDriver(selectedDriver.id, data);
     } else {
-      const newDriver: Driver = {
-        ...(data as Driver),
-        id: `drv_${Math.random().toString(36).substring(2, 9)}`,
-        totalTrips: 0,
-        totalDistance: 0,
-        rating: 5.0,
-        avatar: null,
-      };
-      setDrivers((prev) => [newDriver, ...prev]);
+      addDriver(data);
     }
     setFormOpen(false);
   };
 
   const handleAssignVehicle = (driverId: string, vehicleId: string | null) => {
-    setDrivers((prev) => prev.map((d) => (d.id === driverId ? { ...d, vehicleId } : d)));
+    updateDriver(driverId, { vehicleId });
   };
 
   const handleDelete = () => {
     if (selectedDriver) {
-      setDrivers((prev) => prev.filter((d) => d.id !== selectedDriver.id));
+      deleteDriver(selectedDriver.id);
       setDeleteOpen(false);
     }
   };

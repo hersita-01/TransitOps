@@ -5,7 +5,8 @@ import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Pagination } from '@/components/common/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { MOCK_MAINTENANCE, MOCK_VEHICLES } from '@/services/mockData';
+import { MOCK_VEHICLES } from '@/services/mockData';
+import { useMaintenance } from '@/hooks/useMaintenance';
 import { formatDateTime, humaniseKey } from '@/utils';
 import type { MaintenanceRecord, Vehicle } from '@/types';
 import { MaintenanceFilters, type MaintenanceFilterState } from '@/components/maintenance/MaintenanceFilters';
@@ -14,8 +15,8 @@ import { MaintenanceFormModal } from '@/components/maintenance/MaintenanceFormMo
 
 export function MaintenancePage(): React.JSX.Element {
   // ── State ────────────────────────────────────────────────────────
-  const [records, setRecords] = useState<MaintenanceRecord[]>(MOCK_MAINTENANCE);
-  const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+  const { records, addRecord, updateRecord, deleteRecord } = useMaintenance();
+  const [vehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
   const [filters, setFilters] = useState<MaintenanceFilterState>({
     search: '',
     status: '',
@@ -40,47 +41,23 @@ export function MaintenancePage(): React.JSX.Element {
   const handleOpenDelete = (r: MaintenanceRecord) => { setSelectedRecord(r); setDeleteOpen(true); };
 
   const handleSaveForm = (data: Partial<MaintenanceRecord>) => {
-    let savedRecord: MaintenanceRecord;
     if (selectedRecord) {
-      savedRecord = { ...selectedRecord, ...data } as MaintenanceRecord;
-      setRecords((prev) => prev.map((r) => (r.id === selectedRecord.id ? savedRecord : r)));
+      updateRecord(selectedRecord.id, data);
     } else {
-      savedRecord = {
-        ...(data as MaintenanceRecord),
-        id: `maint_${Math.random().toString(36).substring(2, 9)}`,
-        completedDate: data.status === 'completed' ? new Date().toISOString() : null,
-        actualCost: null,
-        partsUsed: null,
-      };
-      setRecords((prev) => [savedRecord, ...prev]);
+      addRecord(data);
     }
-    syncVehicleStatus(savedRecord);
     setFormOpen(false);
   };
 
   const handleDelete = () => {
     if (selectedRecord) {
-      setRecords((prev) => prev.filter((r) => r.id !== selectedRecord.id));
+      deleteRecord(selectedRecord.id);
       setDeleteOpen(false);
     }
   };
 
   const handleMarkCompleted = (r: MaintenanceRecord) => {
-    const updatedRecord = { ...r, status: 'completed' as const, completedDate: new Date().toISOString() };
-    setRecords((prev) => prev.map((record) => record.id === r.id ? updatedRecord : record));
-    syncVehicleStatus(updatedRecord);
-  };
-
-  const syncVehicleStatus = (record: MaintenanceRecord) => {
-    setVehicles((prevVehicles) => {
-      return prevVehicles.map((v) => {
-        if (v.id === record.vehicleId) {
-          if (record.status === 'in_progress') return { ...v, status: 'maintenance' };
-          if (record.status === 'completed') return { ...v, status: 'active' };
-        }
-        return v;
-      });
-    });
+    updateRecord(r.id, { status: 'completed' as const, completedDate: new Date().toISOString() });
   };
 
   // ── Derived Data ──────────────────────────────────────────────────

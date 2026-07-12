@@ -4,7 +4,8 @@ import { PageTitle } from '@/components/common/PageTitle';
 import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { Pagination } from '@/components/common/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { MOCK_EXPENSES, MOCK_VEHICLES } from '@/services/mockData';
+import { MOCK_VEHICLES } from '@/services/mockData';
+import { useExpenses } from '@/hooks/useExpenses';
 import { formatDateTime, humaniseKey } from '@/utils';
 import type { Expense, ExpenseCategory } from '@/types';
 import { ExpenseFilters, type ExpenseFilterState } from '@/components/expenses/ExpenseFilters';
@@ -25,7 +26,7 @@ const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
 
 export function ExpensesPage(): React.JSX.Element {
   // ── State ────────────────────────────────────────────────────────
-  const [expenses, setExpenses] = useState<Expense[]>(MOCK_EXPENSES);
+  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
   const [filters, setFilters] = useState<ExpenseFilterState>({
     search: '',
     vehicleId: '',
@@ -48,24 +49,16 @@ export function ExpensesPage(): React.JSX.Element {
 
   const handleSaveForm = (data: Partial<Expense>) => {
     if (selectedExpense) {
-      setExpenses((prev) => prev.map((e) => (e.id === selectedExpense.id ? { ...e, ...data } as Expense : e)));
+      updateExpense(selectedExpense.id, data);
     } else {
-      const newExpense: Expense = {
-        ...(data as Expense),
-        id: `exp_${Math.random().toString(36).substring(2, 9)}`,
-        driverId: null,
-        tripId: null,
-        receiptUrl: null,
-        approvedBy: data.status === 'approved' ? 'Current User' : null,
-      };
-      setExpenses((prev) => [newExpense, ...prev]);
+      addExpense(data);
     }
     setFormOpen(false);
   };
 
   const handleDelete = () => {
     if (selectedExpense) {
-      setExpenses((prev) => prev.filter((e) => e.id !== selectedExpense.id));
+      deleteExpense(selectedExpense.id);
       setDeleteOpen(false);
     }
   };
