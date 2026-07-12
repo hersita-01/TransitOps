@@ -1,190 +1,266 @@
 import { PrismaClient, Role, VehicleStatus, DriverStatus, TripStatus, MaintenanceStatus } from '@prisma/client';
-import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+// Helpers
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomItem(arr) {
+  return arr[randomInt(0, arr.length - 1)];
+}
+
+function randomDate(start, end) {
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
+
+function randomDecimal(min, max, precision = 2) {
+  return parseFloat((Math.random() * (max - min) + min).toFixed(precision));
+}
+
+// Data pools
+const firstNames = ['Aarav', 'Vihaan', 'Aditya', 'Ravi', 'Muthu', 'Sanjay', 'Rajesh', 'Amit', 'Anil', 'Vikram', 'Priya', 'Neha', 'Kiran', 'Venkatesh', 'Biju', 'Arjun', 'Rahul', 'Karthik', 'Suresh', 'Ramesh', 'Harish', 'Vijay', 'Manoj'];
+const lastNames = ['Kumar', 'Sharma', 'Patil', 'Verma', 'Patel', 'Desai', 'Singh', 'Gupta', 'Reddy', 'Rao', 'Nair', 'Gowda', 'Iyer', 'Menon', 'Jain', 'Das', 'Bose', 'Yadav', 'Choudhury'];
+const states = ['TN', 'KA', 'MH', 'DL', 'AP', 'TS', 'KL', 'GJ', 'WB', 'UP'];
+const cities = ['Chennai', 'Bengaluru', 'Hyderabad', 'Coimbatore', 'Kochi', 'Vijayawada', 'Mumbai', 'Pune', 'Delhi', 'Kolkata', 'Ahmedabad', 'Surat', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur'];
+const vehicleModels = ['Tata Signa', 'Ashok Leyland Dost', 'BharatBenz 2823C', 'Mahindra Bolero Pickup', 'Eicher Pro 2049', 'Tata Prima', 'Tata Ace Gold', 'Ashok Leyland Bada Dost'];
+const vehicleTypes = ['Truck', 'LCV', 'Trailer', 'Mini Truck', 'Pickup'];
+const maintenanceServices = ['Engine Overhaul', 'Oil Change', 'Brake Replacement', 'Tire Alignment', 'Transmission Repair', 'Battery Replacement', 'General Service'];
+const expenseCategories = ['Toll', 'Insurance', 'Repair', 'Permit', 'Parking', 'Washing'];
+
 async function main() {
-  console.log('Seeding data...');
-  const defaultPasswordHash = bcrypt.hashSync('password123', 10);
+  console.log('Cleaning existing data...');
+  // Wipe all data for idempotency
+  await prisma.expense.deleteMany();
+  await prisma.fuelLog.deleteMany();
+  await prisma.maintenance.deleteMany();
+  await prisma.trip.deleteMany();
+  await prisma.driver.deleteMany();
+  await prisma.vehicle.deleteMany();
+  await prisma.user.deleteMany();
 
-  // Users
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@transitops.in' },
-    update: { password: defaultPasswordHash },
-    create: { name: 'Ravi Kumar', email: 'admin@transitops.in', password: defaultPasswordHash, role: Role.ADMIN }
+  console.log('Seeding enterprise data...');
+
+  const now = new Date();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(now.getMonth() - 6);
+
+  // 1. Users
+  console.log('Creating users...');
+  await prisma.user.createMany({
+    data: [
+      { name: 'Admin User', email: 'admin@transitops.in', password: 'hashedpassword', role: Role.ADMIN },
+      { name: 'Dispatch Manager', email: 'dispatcher@transitops.in', password: 'hashedpassword', role: Role.DISPATCHER },
+      { name: 'Fleet Controller', email: 'fleet@transitops.in', password: 'hashedpassword', role: Role.FLEET_MANAGER },
+      { name: 'Safety Lead', email: 'safety@transitops.in', password: 'hashedpassword', role: Role.SAFETY_OFFICER },
+      { name: 'Finance Head', email: 'finance@transitops.in', password: 'hashedpassword', role: Role.FINANCE },
+    ]
   });
 
-  const dispatcher = await prisma.user.upsert({
-    where: { email: 'dispatcher@transitops.in' },
-    update: { password: defaultPasswordHash },
-    create: { name: 'Priya Sharma', email: 'dispatcher@transitops.in', password: defaultPasswordHash, role: Role.DISPATCHER }
-  });
+  // 2. Vehicles
+  console.log('Creating vehicles...');
+  const vehicles = [];
 
-  const fleetManager = await prisma.user.upsert({
-    where: { email: 'fleet@transitops.in' },
-    update: { password: defaultPasswordHash },
-    create: { name: 'Anil Desai', email: 'fleet@transitops.in', password: defaultPasswordHash, role: Role.FLEET_MANAGER }
-  });
+  for (let i = 0; i < 50; i++) {
+    let status = VehicleStatus.AVAILABLE;
+    if (i < 10) status = VehicleStatus.ON_TRIP;
+    else if (i < 15) status = VehicleStatus.IN_SHOP;
+    else if (i > 45) status = VehicleStatus.RETIRED;
 
-  const safetyOfficer = await prisma.user.upsert({
-    where: { email: 'safety@transitops.in' },
-    update: { password: defaultPasswordHash },
-    create: { name: 'Vikram Singh', email: 'safety@transitops.in', password: defaultPasswordHash, role: Role.SAFETY_OFFICER }
-  });
+    const state = randomItem(states);
+    const code = String(randomInt(1, 99)).padStart(2, '0');
+    const letters = String.fromCharCode(65 + randomInt(0, 25)) + String.fromCharCode(65 + randomInt(0, 25));
+    const num = String(randomInt(1000, 9999));
+    
+    vehicles.push({
+      registrationNumber: `${state}-${code}-${letters}-${num}`,
+      model: randomItem(vehicleModels),
+      type: randomItem(vehicleTypes),
+      capacity: randomInt(1000, 40000),
+      odometer: randomInt(5000, 200000),
+      acquisitionCost: randomDecimal(500000, 5000000),
+      status
+    });
+  }
+  
+  await prisma.vehicle.createMany({ data: vehicles });
+  const createdVehicles = await prisma.vehicle.findMany();
+  
+  const onTripVehicles = createdVehicles.filter(v => v.status === VehicleStatus.ON_TRIP);
+  const inShopVehicles = createdVehicles.filter(v => v.status === VehicleStatus.IN_SHOP);
 
-  const finance = await prisma.user.upsert({
-    where: { email: 'finance@transitops.in' },
-    update: { password: defaultPasswordHash },
-    create: { name: 'Neha Gupta', email: 'finance@transitops.in', password: defaultPasswordHash, role: Role.FINANCE }
-  });
+  // 3. Drivers
+  console.log('Creating drivers...');
+  const drivers = [];
+  
+  for (let i = 0; i < 75; i++) {
+    let status = DriverStatus.AVAILABLE;
+    if (i < 10) status = DriverStatus.ON_TRIP;
+    else if (i < 15) status = DriverStatus.OFF_DUTY;
+    else if (i > 70) status = DriverStatus.SUSPENDED;
 
-  // Vehicles
-  const v1 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'TN-01-AB-1234' },
-    update: {},
-    create: { registrationNumber: 'TN-01-AB-1234', model: 'Tata Signa', type: 'Truck', capacity: 15000, odometer: 45000, acquisitionCost: 2500000, status: VehicleStatus.ON_TRIP }
-  });
+    const state = randomItem(states);
+    
+    drivers.push({
+      name: `${randomItem(firstNames)} ${randomItem(lastNames)}`,
+      licenseNumber: `${state}-${randomInt(2000, 2024)}-${String(randomInt(1, 9999999)).padStart(7, '0')}`,
+      category: randomItem(['Light', 'Heavy', 'Commercial']),
+      expiryDate: randomDate(now, new Date(now.getTime() + 1000 * 60 * 60 * 24 * 365 * 5)),
+      contact: `98${String(randomInt(10000000, 99999999))}`,
+      safetyScore: randomDecimal(2.5, 5.0),
+      status
+    });
+  }
 
-  const v2 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'KA-05-XY-9876' },
-    update: {},
-    create: { registrationNumber: 'KA-05-XY-9876', model: 'Ashok Leyland Dost', type: 'LCV', capacity: 3000, odometer: 12000, acquisitionCost: 800000, status: VehicleStatus.AVAILABLE }
-  });
+  await prisma.driver.createMany({ data: drivers });
+  const createdDrivers = await prisma.driver.findMany();
+  
+  const onTripDrivers = createdDrivers.filter(d => d.status === DriverStatus.ON_TRIP);
+  const availableDrivers = createdDrivers.filter(d => d.status === DriverStatus.AVAILABLE);
 
-  const v3 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'MH-12-CD-5678' },
-    update: {},
-    create: { registrationNumber: 'MH-12-CD-5678', model: 'BharatBenz 2823C', type: 'Truck', capacity: 28000, odometer: 85000, acquisitionCost: 3500000, status: VehicleStatus.IN_SHOP }
-  });
+  // 4. Trips
+  console.log('Creating trips...');
+  const trips = [];
+  
+  // Create 10 active dispatched trips for ON_TRIP vehicles and drivers
+  for (let i = 0; i < 10; i++) {
+    const v = onTripVehicles[i];
+    const d = onTripDrivers[i];
+    
+    let source = randomItem(cities);
+    let dest = randomItem(cities);
+    while(dest === source) dest = randomItem(cities);
 
-  const v4 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'DL-01-EF-4321' },
-    update: {},
-    create: { registrationNumber: 'DL-01-EF-4321', model: 'Mahindra Bolero Pickup', type: 'Pickup', capacity: 1500, odometer: 56000, acquisitionCost: 750000, status: VehicleStatus.AVAILABLE }
-  });
+    const plannedDist = randomDecimal(50, 1500);
 
-  const v5 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'AP-09-GH-2468' },
-    update: {},
-    create: { registrationNumber: 'AP-09-GH-2468', model: 'Eicher Pro 2049', type: 'Truck', capacity: 5000, odometer: 150000, acquisitionCost: 1200000, status: VehicleStatus.RETIRED }
-  });
+    trips.push({
+      vehicleId: v.id,
+      driverId: d.id,
+      source,
+      destination: dest,
+      cargoWeight: randomDecimal(100, v.capacity),
+      plannedDistance: plannedDist,
+      status: TripStatus.DISPATCHED,
+      startTime: randomDate(new Date(now.getTime() - 1000 * 60 * 60 * 24 * 2), now)
+    });
+  }
 
-  const v6 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'TS-07-IJ-1357' },
-    update: {},
-    create: { registrationNumber: 'TS-07-IJ-1357', model: 'Tata Prima', type: 'Trailer', capacity: 40000, odometer: 120000, acquisitionCost: 4500000, status: VehicleStatus.ON_TRIP }
-  });
+  // Create 240 past trips
+  for (let i = 0; i < 240; i++) {
+    const v = randomItem(createdVehicles);
+    const d = randomItem(createdDrivers);
+    
+    let source = randomItem(cities);
+    let dest = randomItem(cities);
+    while(dest === source) dest = randomItem(cities);
 
-  const v7 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'KL-01-KL-9753' },
-    update: {},
-    create: { registrationNumber: 'KL-01-KL-9753', model: 'Tata Ace Gold', type: 'Mini Truck', capacity: 750, odometer: 8000, acquisitionCost: 500000, status: VehicleStatus.AVAILABLE }
-  });
+    const plannedDist = randomDecimal(50, 1500);
+    const isCompleted = Math.random() > 0.1; // 90% completed, 10% cancelled
+    const startTime = randomDate(sixMonthsAgo, new Date(now.getTime() - 1000 * 60 * 60 * 24 * 3));
+    const endTime = new Date(startTime.getTime() + 1000 * 60 * 60 * Math.random() * 48); // up to 48 hours later
 
-  const v8 = await prisma.vehicle.upsert({
-    where: { registrationNumber: 'GJ-01-MN-8642' },
-    update: {},
-    create: { registrationNumber: 'GJ-01-MN-8642', model: 'Ashok Leyland Bada Dost', type: 'LCV', capacity: 3500, odometer: 25000, acquisitionCost: 900000, status: VehicleStatus.AVAILABLE }
-  });
+    if (isCompleted) {
+      trips.push({
+        vehicleId: v.id,
+        driverId: d.id,
+        source,
+        destination: dest,
+        cargoWeight: randomDecimal(100, v.capacity),
+        plannedDistance: plannedDist,
+        actualDistance: plannedDist * randomDecimal(0.95, 1.1),
+        fuelUsed: plannedDist / randomDecimal(3, 10), // 3 to 10 kmpl
+        status: TripStatus.COMPLETED,
+        startTime,
+        endTime
+      });
+    } else {
+      trips.push({
+        vehicleId: v.id,
+        driverId: d.id,
+        source,
+        destination: dest,
+        cargoWeight: randomDecimal(100, v.capacity),
+        plannedDistance: plannedDist,
+        status: TripStatus.CANCELLED,
+        startTime
+      });
+    }
+  }
 
-  // Drivers
-  const d1 = await prisma.driver.upsert({
-    where: { licenseNumber: 'TN-2010-0012345' },
-    update: {},
-    create: { name: 'Muthu Kumar', licenseNumber: 'TN-2010-0012345', category: 'Heavy', expiryDate: new Date('2028-12-31'), contact: '9876543210', safetyScore: 4.8, status: DriverStatus.ON_TRIP }
-  });
+  await prisma.trip.createMany({ data: trips });
 
-  const d2 = await prisma.driver.upsert({
-    where: { licenseNumber: 'KA-2015-0098765' },
-    update: {},
-    create: { name: 'Ramesh Gowda', licenseNumber: 'KA-2015-0098765', category: 'Light', expiryDate: new Date('2026-06-30'), contact: '9876543211', safetyScore: 4.2, status: DriverStatus.AVAILABLE }
-  });
+  // 5. Maintenance
+  console.log('Creating maintenance records...');
+  const maintenance = [];
 
-  const d3 = await prisma.driver.upsert({
-    where: { licenseNumber: 'MH-2008-0056789' },
-    update: {},
-    create: { name: 'Sanjay Patil', licenseNumber: 'MH-2008-0056789', category: 'Heavy', expiryDate: new Date('2025-10-15'), contact: '9876543212', safetyScore: 3.5, status: DriverStatus.OFF_DUTY }
-  });
+  // Active maintenance for IN_SHOP vehicles
+  for (let i = 0; i < 5; i++) {
+    const v = inShopVehicles[i];
+    maintenance.push({
+      vehicleId: v.id,
+      serviceType: randomItem(maintenanceServices),
+      description: 'Routine checks and active repairs',
+      cost: randomDecimal(1000, 50000),
+      status: Math.random() > 0.5 ? MaintenanceStatus.OPEN : MaintenanceStatus.IN_PROGRESS,
+      startDate: randomDate(new Date(now.getTime() - 1000 * 60 * 60 * 24 * 5), now)
+    });
+  }
 
-  const d4 = await prisma.driver.upsert({
-    where: { licenseNumber: 'DL-2012-0043210' },
-    update: {},
-    create: { name: 'Rajesh Verma', licenseNumber: 'DL-2012-0043210', category: 'Light', expiryDate: new Date('2027-01-20'), contact: '9876543213', safetyScore: 4.9, status: DriverStatus.AVAILABLE }
-  });
+  // 75 Completed past maintenance records
+  for (let i = 0; i < 75; i++) {
+    const v = randomItem(createdVehicles);
+    const startDate = randomDate(sixMonthsAgo, new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10));
+    const endDate = new Date(startDate.getTime() + 1000 * 60 * 60 * 24 * randomInt(1, 5));
+    
+    maintenance.push({
+      vehicleId: v.id,
+      serviceType: randomItem(maintenanceServices),
+      description: 'Completed scheduled service',
+      cost: randomDecimal(1000, 100000),
+      status: MaintenanceStatus.COMPLETED,
+      startDate,
+      endDate
+    });
+  }
 
-  const d5 = await prisma.driver.upsert({
-    where: { licenseNumber: 'AP-2018-0024680' },
-    update: {},
-    create: { name: 'Kiran Reddy', licenseNumber: 'AP-2018-0024680', category: 'Heavy', expiryDate: new Date('2029-03-10'), contact: '9876543214', safetyScore: 4.0, status: DriverStatus.SUSPENDED }
-  });
+  await prisma.maintenance.createMany({ data: maintenance });
 
-  const d6 = await prisma.driver.upsert({
-    where: { licenseNumber: 'TS-2014-0013579' },
-    update: {},
-    create: { name: 'Venkatesh Rao', licenseNumber: 'TS-2014-0013579', category: 'Heavy', expiryDate: new Date('2026-11-25'), contact: '9876543215', safetyScore: 4.6, status: DriverStatus.ON_TRIP }
-  });
+  // 6. Fuel Logs
+  console.log('Creating fuel logs...');
+  const fuelLogs = [];
+  for (let i = 0; i < 120; i++) {
+    const v = randomItem(createdVehicles);
+    const liters = randomDecimal(20, 200);
+    const cost = liters * randomDecimal(90, 105); // Price of diesel/petrol
+    
+    fuelLogs.push({
+      vehicleId: v.id,
+      liters,
+      cost,
+      date: randomDate(sixMonthsAgo, now)
+    });
+  }
+  
+  await prisma.fuelLog.createMany({ data: fuelLogs });
 
-  const d7 = await prisma.driver.upsert({
-    where: { licenseNumber: 'KL-2019-0097531' },
-    update: {},
-    create: { name: 'Biju Nair', licenseNumber: 'KL-2019-0097531', category: 'Light', expiryDate: new Date('2028-05-15'), contact: '9876543216', safetyScore: 4.4, status: DriverStatus.AVAILABLE }
-  });
+  // 7. Expenses
+  console.log('Creating expenses...');
+  const expenses = [];
+  for (let i = 0; i < 200; i++) {
+    const v = randomItem(createdVehicles);
+    expenses.push({
+      vehicleId: v.id,
+      category: randomItem(expenseCategories),
+      amount: randomDecimal(100, 15000),
+      description: 'Operational expense',
+      date: randomDate(sixMonthsAgo, now)
+    });
+  }
 
-  const d8 = await prisma.driver.upsert({
-    where: { licenseNumber: 'GJ-2016-0086420' },
-    update: {},
-    create: { name: 'Amit Patel', licenseNumber: 'GJ-2016-0086420', category: 'Light', expiryDate: new Date('2027-08-05'), contact: '9876543217', safetyScore: 4.7, status: DriverStatus.AVAILABLE }
-  });
+  await prisma.expense.createMany({ data: expenses });
 
-  // Trips
-  await prisma.trip.create({
-    data: { vehicleId: v1.id, driverId: d1.id, source: 'Chennai', destination: 'Bengaluru', cargoWeight: 14000, plannedDistance: 350, actualDistance: 355, fuelUsed: 120, status: TripStatus.COMPLETED, startTime: new Date('2023-10-01T08:00:00Z'), endTime: new Date('2023-10-01T16:00:00Z') }
-  });
-
-  await prisma.trip.create({
-    data: { vehicleId: v1.id, driverId: d1.id, source: 'Bengaluru', destination: 'Hyderabad', cargoWeight: 12000, plannedDistance: 570, status: TripStatus.DISPATCHED, startTime: new Date('2023-10-25T09:00:00Z') }
-  });
-
-  await prisma.trip.create({
-    data: { vehicleId: v6.id, driverId: d6.id, source: 'Mumbai', destination: 'Pune', cargoWeight: 38000, plannedDistance: 150, status: TripStatus.DISPATCHED, startTime: new Date('2023-10-26T10:00:00Z') }
-  });
-
-  await prisma.trip.create({
-    data: { vehicleId: v2.id, driverId: d2.id, source: 'Delhi', destination: 'Gurugram', cargoWeight: 2000, plannedDistance: 35, status: TripStatus.DRAFT, startTime: new Date('2023-11-01T08:00:00Z') }
-  });
-
-  await prisma.trip.create({
-    data: { vehicleId: v4.id, driverId: d4.id, source: 'Kolkata', destination: 'Howrah', cargoWeight: 1000, plannedDistance: 20, status: TripStatus.CANCELLED, startTime: new Date('2023-10-15T08:00:00Z') }
-  });
-
-  // Maintenance
-  await prisma.maintenance.create({
-    data: { vehicleId: v3.id, serviceType: 'Engine Overhaul', description: 'Complete engine check and repair', cost: 150000, status: MaintenanceStatus.OPEN, startDate: new Date('2023-10-20T10:00:00Z') }
-  });
-
-  await prisma.maintenance.create({
-    data: { vehicleId: v1.id, serviceType: 'Oil Change', description: 'Routine oil and filter change', cost: 5000, status: MaintenanceStatus.COMPLETED, startDate: new Date('2023-09-15T10:00:00Z'), endDate: new Date('2023-09-15T14:00:00Z') }
-  });
-
-  // Fuel Logs
-  await prisma.fuelLog.create({
-    data: { vehicleId: v1.id, liters: 100, cost: 9500, date: new Date('2023-09-30T18:00:00Z') }
-  });
-
-  await prisma.fuelLog.create({
-    data: { vehicleId: v6.id, liters: 250, cost: 23750, date: new Date('2023-10-25T18:00:00Z') }
-  });
-
-  // Expenses
-  await prisma.expense.create({
-    data: { vehicleId: v1.id, category: 'Toll', amount: 1500, description: 'Chennai-Bengaluru Highway Tolls', date: new Date('2023-10-01T12:00:00Z') }
-  });
-
-  await prisma.expense.create({
-    data: { vehicleId: v6.id, category: 'Insurance', amount: 45000, description: 'Annual Premium', date: new Date('2023-01-15T10:00:00Z') }
-  });
-
-  console.log('Seeding complete.');
+  console.log('Enterprise seed successfully applied!');
 }
 
 main()
