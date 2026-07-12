@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
+import vehicleRoutes from './vehicle.routes';
 import rbacTestRoutes from './rbac-test.routes';
 
 const router = Router();
@@ -19,6 +20,9 @@ router.get('/health', (req, res) => {
 
 // Auth endpoints
 router.use('/auth', authRoutes);
+
+// Vehicle endpoints
+router.use('/vehicles', vehicleRoutes);
 
 // RBAC Test endpoints (development only)
 if (process.env.NODE_ENV !== 'production') {
