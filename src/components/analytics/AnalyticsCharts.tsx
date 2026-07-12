@@ -5,11 +5,23 @@ import {
 } from 'recharts';
 
 interface AnalyticsChartsProps {
-  dailyTrends: any[];
-  expenseCategoryBreakdown: any[];
-  vehicleStatusDist: any[];
-  driverStatusDist: any[];
-  tripStatusDist: any[];
+  dailyTrends: Record<string, unknown>[];
+  expenseCategoryBreakdown: Record<string, unknown>[];
+  vehicleStatusDist: Record<string, unknown>[];
+  driverStatusDist: Record<string, unknown>[];
+  tripStatusDist: Record<string, unknown>[];
+}
+
+interface TooltipPayload {
+  color: string;
+  name: string;
+  value: number | string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
 }
 
 export function AnalyticsCharts({
@@ -22,12 +34,12 @@ export function AnalyticsCharts({
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#64748b'];
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl">
           <p className="text-sm font-semibold text-slate-200 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry: TooltipPayload, index: number) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.name}: {typeof entry.value === 'number' && entry.name.toLowerCase().includes('cost') ? `$${entry.value.toFixed(2)}` : entry.value}
             </p>

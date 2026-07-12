@@ -128,13 +128,25 @@ export function ProfilePage(): React.JSX.Element {
   );
 }
 
-function InputField({ icon: Icon, label, value, type = 'text', disabled, className = '', onChange }: any) {
+interface InputFieldProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  type?: string;
+  disabled?: boolean;
+  className?: string;
+  onChange: (value: string) => void;
+}
+
+function InputField({ icon: Icon, label, value, type = 'text', disabled, className = '', onChange }: InputFieldProps) {
+  const id = label.replace(/\s+/g, '-').toLowerCase();
   return (
     <div className={className}>
-      <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-[11px] font-semibold text-slate-500 uppercase mb-1.5">{label}</label>
       <div className="relative">
         <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
+          id={id}
           type={type}
           value={value}
           disabled={disabled}

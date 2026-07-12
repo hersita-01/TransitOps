@@ -140,7 +140,8 @@ export function exportToCSV(filename: string, rows: object[]) {
       .map(row => {
         return keys
           .map(k => {
-            let cell = (row as any)[k] === null || (row as any)[k] === undefined ? '' : (row as any)[k];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let cell = (row as Record<string, unknown>)[k] === null || (row as Record<string, unknown>)[k] === undefined ? '' : (row as Record<string, unknown>)[k] as any;
             cell = cell instanceof Date ? cell.toLocaleString() : cell.toString().replace(/"/g, '""');
             if (cell.search(/("|,|\n)/g) >= 0) {
               cell = `"${cell}"`;
