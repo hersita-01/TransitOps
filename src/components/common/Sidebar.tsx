@@ -12,6 +12,7 @@ import {
   X,
   ChevronLeft,
   Zap,
+  HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/utils';
 
@@ -37,6 +38,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const BOTTOM_ITEMS: NavItem[] = [
   { id: 'nav-settings', label: 'Settings', href: '/settings', icon: <Settings className="w-4.5 h-4.5" /> },
+  { id: 'nav-help', label: 'Help Center', href: '/help', icon: <HelpCircle className="w-4.5 h-4.5" /> },
 ];
 
 // ── Props ────────────────────────────────────────────────────
@@ -82,7 +84,8 @@ export function Sidebar({
           'lg:translate-x-0',
           isCollapsed ? 'lg:w-[72px]' : 'lg:w-[260px]',
           // Mobile: slide in/out
-          isOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full w-[260px] lg:translate-x-0'
+          isOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full w-[260px] lg:translate-x-0',
+          'print:hidden'
         )}
       >
         {/* Logo / Brand */}

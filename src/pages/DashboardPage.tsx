@@ -10,11 +10,17 @@ import {
   Clock,
   CalendarDays,
   Building2,
+  Settings2,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+  RefreshCcw,
 } from 'lucide-react';
 // PageTitle not needed — welcome header is custom-built
 import { StatCard }     from '@/components/common/StatCard';
 import { StatusBadge }  from '@/components/common/StatusBadge';
 import { DataTable, type ColumnDef } from '@/components/common/DataTable';
+import { Modal }        from '@/components/ui/Modal';
 import { DashboardCard }           from '@/components/dashboard/DashboardCard';
 import { UtilizationChart }        from '@/components/dashboard/UtilizationChart';
 import { FuelCostChart }           from '@/components/dashboard/FuelCostChart';
@@ -22,6 +28,8 @@ import { ActivityFeed }            from '@/components/dashboard/ActivityFeed';
 import { FleetStatusPanel }        from '@/components/dashboard/FleetStatusPanel';
 import { MaintenanceSummaryPanel } from '@/components/dashboard/MaintenanceSummaryPanel';
 import { useAuth }      from '@/context/AuthContext';
+import { usePreferences } from '@/context/PreferencesContext';
+import { useDemo } from '@/context/DemoContext';
 import { formatDate, formatDateTime, getInitials } from '@/utils';
 import { MOCK_VEHICLES }    from '@/mock/vehicles';
 import { MOCK_DRIVERS }     from '@/mock/drivers';
@@ -166,6 +174,14 @@ const TRIP_COLUMNS: ColumnDef<Trip>[] = [
 
 export function DashboardPage(): React.JSX.Element {
   const { user } = useAuth();
+  const { dashboardConfig, setDashboardConfig } = usePreferences();
+  const { resetDemoData } = useDemo();
+  const [showCustomizeModal, setShowCustomizeModal] = React.useState(false);
+
+  const isWidgetVisible = (id: string) => dashboardConfig.find(w => w.id === id)?.visible ?? true;
+  const toggleWidget = (id: string) => {
+    setDashboardConfig(dashboardConfig.map(w => w.id === id ? { ...w, visible: !w.visible } : w));
+  };
 
   const greeting = (() => {
     const hour = new Date().getHours();
@@ -175,6 +191,9 @@ export function DashboardPage(): React.JSX.Element {
   })();
 
   const recentTrips = MOCK_TRIPS.slice(0, 6);
+
+  // Derive active alerts from Maintenance
+  const activeAlerts = UPCOMING_MAINTENANCE.filter(m => m.status === 'overdue' || m.status === 'in_progress');
 
   return (
     <div className="space-y-6">
@@ -201,7 +220,14 @@ export function DashboardPage(): React.JSX.Element {
             Here's your fleet overview for today.
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <button
+            onClick={() => setShowCustomizeModal(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+          >
+            <Settings2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Customize</span>
+          </button>
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-300">
             <CalendarDays className="w-3.5 h-3.5 text-blue-400" />
             {formatDate(new Date().toISOString())}
@@ -209,8 +235,30 @@ export function DashboardPage(): React.JSX.Element {
         </div>
       </div>
 
+      {/* ── Active Alerts Widget ────────────────────────────── */}
+      {isWidgetVisible('active-alerts') && activeAlerts.length > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-amber-400">Fleet Alerts ({activeAlerts.length})</h3>
+              <p className="text-xs text-amber-500/80 mt-0.5">There are vehicles requiring immediate attention.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.href = '/maintenance'}
+            className="px-4 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-semibold hover:bg-amber-500/30 transition-colors"
+          >
+            View Alerts
+          </button>
+        </div>
+      )}
+
       {/* ── 2. KPI Cards ────────────────────────────────────── */}
-      <section aria-label="Key performance indicators">
+      {isWidgetVisible('summary') && (
+        <section aria-label="Key performance indicators">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {DASHBOARD_KPI_CARDS.map((card) => (
             <StatCard
@@ -221,9 +269,11 @@ export function DashboardPage(): React.JSX.Element {
           ))}
         </div>
       </section>
+      )}
 
       {/* ── 3 + 5. Fleet Status & Utilization Chart ─────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {isWidgetVisible('fleet-health') && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* 3. Fleet Status */}
         <DashboardCard
@@ -248,9 +298,11 @@ export function DashboardPage(): React.JSX.Element {
           </div>
         </DashboardCard>
       </div>
+      )}
 
       {/* ── 4. Recent Trips Table ───────────────────────────── */}
-      <DashboardCard
+      {isWidgetVisible('recent-timeline') && (
+        <DashboardCard
         title="Recent Trips"
         subtitle={`Showing ${recentTrips.length} of ${MOCK_TRIPS.length} trips`}
         action={{ label: 'View all trips', href: '/trips' }}
@@ -266,9 +318,11 @@ export function DashboardPage(): React.JSX.Element {
           />
         </div>
       </DashboardCard>
+      )}
 
       {/* ── 6 + 7 + 8. Charts & Panels ──────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {isWidgetVisible('recent-timeline') && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* 6. Fuel Cost Chart */}
         <DashboardCard
@@ -298,9 +352,11 @@ export function DashboardPage(): React.JSX.Element {
           />
         </DashboardCard>
       </div>
+      )}
 
       {/* ── Trip analytics strip ──────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {isWidgetVisible('summary') && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: 'Total Trips (Week)',  value: DASHBOARD_TRIP_ANALYTICS.totalTrips,         unit: 'trips',  color: 'text-blue-400' },
           { label: 'Completed',          value: DASHBOARD_TRIP_ANALYTICS.completed,           unit: 'trips',  color: 'text-emerald-400' },
@@ -319,14 +375,48 @@ export function DashboardPage(): React.JSX.Element {
           </div>
         ))}
       </div>
+      )}
 
       {/* ── 8. Activity Feed ─────────────────────────────────── */}
-      <DashboardCard
+      {isWidgetVisible('recent-timeline') && (
+        <DashboardCard
         title="Activity Feed"
         subtitle="Recent system events across the platform"
       >
         <ActivityFeed items={ACTIVITY_FEED} maxHeight="400px" />
       </DashboardCard>
+      )}
+
+      {/* ── Customize Modal ──────────────────────────────────── */}
+      <Modal
+        open={showCustomizeModal}
+        onOpenChange={setShowCustomizeModal}
+        title="Customize Dashboard"
+        description="Show or hide widgets to personalize your workspace."
+      >
+        <div className="space-y-2 mt-4">
+          {dashboardConfig.map((widget) => (
+            <div key={widget.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+              <span className="text-sm font-medium text-slate-300 capitalize">{widget.id.replace('-', ' ')}</span>
+              <button
+                onClick={() => toggleWidget(widget.id)}
+                className="p-1.5 rounded-md hover:bg-slate-700 transition-colors"
+              >
+                {widget.visible ? <Eye className="w-4 h-4 text-emerald-400" /> : <EyeOff className="w-4 h-4 text-slate-500" />}
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 pt-4 border-t border-slate-700/50">
+          <button
+            onClick={resetDemoData}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-sm font-medium transition-colors"
+          >
+            <RefreshCcw className="w-4 h-4" />
+            Reset Demo Data
+          </button>
+        </div>
+      </Modal>
 
     </div>
   );

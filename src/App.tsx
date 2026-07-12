@@ -3,6 +3,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { PreferencesProvider } from '@/context/PreferencesContext';
+import { DemoProvider } from '@/context/DemoContext';
 import { AppRouter } from '@/routes';
 
 const queryClient = new QueryClient({
@@ -20,7 +22,11 @@ function App(): React.JSX.Element {
       <BrowserRouter>
         <AuthProvider>
           <ToastProvider>
-            <AppRouter />
+            <PreferencesProvider>
+              <DemoProvider>
+                <AppRouter />
+              </DemoProvider>
+            </PreferencesProvider>
           </ToastProvider>
         </AuthProvider>
       </BrowserRouter>

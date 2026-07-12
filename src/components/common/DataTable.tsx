@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Settings2, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/utils';
 import { EmptyState } from './EmptyState';
+import { usePreferences } from '@/context/PreferencesContext';
 import type { SortState } from '@/types';
 
 // ── Column definition ────────────────────────────────────────
@@ -30,6 +31,7 @@ interface DataTableProps<T> {
   className?: string;
   rowClassName?: (row: T) => string;
   onRowClick?: (row: T) => void;
+  showToolbar?: boolean;
 }
 
 // ── Sort Icon ────────────────────────────────────────────────
@@ -76,8 +78,12 @@ export function DataTable<T>({
   className,
   rowClassName,
   onRowClick,
+  showToolbar = true,
 }: DataTableProps<T>): React.JSX.Element {
   const [internalSort, setInternalSort] = useState<SortState | undefined>(sort);
+  const [hiddenCols, setHiddenCols] = useState<Set<string>>(new Set());
+  const { tableDensity, setTableDensity } = usePreferences();
+  const [showColSettings, setShowColSettings] = useState(false);
 
   function handleSort(key: string): void {
     const newSort: SortState = {
@@ -89,24 +95,81 @@ export function DataTable<T>({
   }
 
   const activeSort = sort ?? internalSort;
+  const visibleColumns = columns.filter((col) => !hiddenCols.has(col.key));
+  const cellPadding = tableDensity === 'compact' ? 'px-3 py-1.5' : 'px-4 py-3';
+
+  const toggleCol = (key: string) => {
+    setHiddenCols((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   return (
-    <div id={id} className={cn('overflow-hidden rounded-xl border border-slate-700/60', className)}>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          {/* Head */}
-          <thead>
-            <tr className="border-b border-slate-700 bg-slate-800/80">
-              {columns.map((col) => (
+    <div id={id} className={cn('flex flex-col gap-3', className)}>
+      {showToolbar && (
+        <div className="flex items-center justify-end gap-3 print:hidden relative">
+          <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-700/60">
+            <button
+              onClick={() => setTableDensity('comfortable')}
+              className={cn('px-2.5 py-1 text-xs font-medium rounded-md transition-colors', tableDensity === 'comfortable' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-200')}
+            >
+              Comfortable
+            </button>
+            <button
+              onClick={() => setTableDensity('compact')}
+              className={cn('px-2.5 py-1 text-xs font-medium rounded-md transition-colors', tableDensity === 'compact' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-200')}
+            >
+              Compact
+            </button>
+          </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowColSettings(!showColSettings)}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-slate-900/50 border border-slate-700/60 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              Columns
+            </button>
+            {showColSettings && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 py-2">
+                {columns.map((col) => (
+                  <button
+                    key={col.key}
+                    onClick={() => toggleCol(col.key)}
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-700 transition-colors text-left"
+                  >
+                    <span>{col.header}</span>
+                    {hiddenCols.has(col.key) ? <EyeOff className="w-3.5 h-3.5 text-slate-500" /> : <Eye className="w-3.5 h-3.5 text-blue-400" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className={cn('overflow-hidden rounded-xl border border-slate-700/60')}>
+        <div className="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar">
+          <table className="w-full text-sm relative">
+            {/* Head */}
+            <thead className="sticky top-0 z-20">
+              <tr className="border-b border-slate-700 bg-slate-800 shadow-sm">
+                {visibleColumns.map((col, idx) => (
                 <th
                   key={col.key}
                   scope="col"
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    'px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap',
+                    cellPadding,
+                    'text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap bg-slate-800',
                     col.align === 'center' && 'text-center',
                     col.align === 'right' && 'text-right',
-                    col.sortable && 'cursor-pointer select-none hover:text-slate-200 transition-colors'
+                    col.sortable && 'cursor-pointer select-none hover:text-slate-200 transition-colors',
+                    idx === 0 && 'sticky left-0 z-30 border-r border-slate-700/50'
                   )}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
                   aria-sort={
@@ -127,10 +190,10 @@ export function DataTable<T>({
           {/* Body */}
           <tbody>
             {isLoading ? (
-              <SkeletonRows cols={columns.length} />
+              <SkeletonRows cols={visibleColumns.length} />
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length}>
+                <td colSpan={visibleColumns.length}>
                   <EmptyState title={emptyTitle} description={emptyDescription} />
                 </td>
               </tr>
@@ -146,13 +209,15 @@ export function DataTable<T>({
                     rowClassName?.(row)
                   )}
                 >
-                  {columns.map((col) => (
+                  {visibleColumns.map((col, idx) => (
                     <td
                       key={col.key}
                       className={cn(
-                        'px-4 py-3 text-slate-300 whitespace-nowrap',
+                        cellPadding,
+                        'text-slate-300 whitespace-nowrap',
                         col.align === 'center' && 'text-center',
-                        col.align === 'right' && 'text-right'
+                        col.align === 'right' && 'text-right',
+                        idx === 0 && 'sticky left-0 z-10 bg-slate-800/90 border-r border-slate-700/50 backdrop-blur-sm group-hover:bg-slate-700/90 transition-colors'
                       )}
                     >
                       {col.accessor(row)}
@@ -164,6 +229,7 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 }

@@ -27,6 +27,14 @@ export function UtilizationChart({
   data,
   height = 200,
 }: UtilizationChartProps): React.JSX.Element {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full bg-slate-800/30 rounded-lg border border-dashed border-slate-700/50" style={{ height }}>
+        <p className="text-sm text-slate-400">No utilization data available</p>
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
@@ -65,6 +73,8 @@ export function UtilizationChart({
           fill="url(#utilizationGradient)"
           dot={false}
           activeDot={{ r: 4, fill: '#06b6d4', stroke: '#0f172a', strokeWidth: 2 }}
+          isAnimationActive={true}
+          animationDuration={800}
         />
       </AreaChart>
     </ResponsiveContainer>

@@ -31,6 +31,14 @@ const TOOLTIP_STYLE = {
 };
 
 export function FuelCostChart({ data, height = 200 }: FuelCostChartProps): React.JSX.Element {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full bg-slate-800/30 rounded-lg border border-dashed border-slate-700/50" style={{ height }}>
+        <p className="text-sm text-slate-400">No fuel cost data available</p>
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
@@ -72,6 +80,8 @@ export function FuelCostChart({ data, height = 200 }: FuelCostChartProps): React
           radius={[4, 4, 0, 0]}
           maxBarSize={32}
           opacity={0.85}
+          isAnimationActive={true}
+          animationDuration={800}
         />
         <Line
           yAxisId="right"
@@ -82,6 +92,8 @@ export function FuelCostChart({ data, height = 200 }: FuelCostChartProps): React
           strokeWidth={2}
           dot={{ r: 3, fill: '#3b82f6' }}
           activeDot={{ r: 5 }}
+          isAnimationActive={true}
+          animationDuration={800}
         />
       </ComposedChart>
     </ResponsiveContainer>
