@@ -1,32 +1,28 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { ApiError } from '../utils/api-error';
-import { UserRole, SUPPORTED_ROLES } from '../types/auth.types';
+import { UserRole } from '../types/role.types';
 
-export const authorizeRoles = (...allowedRoles: UserRole[]): RequestHandler => {
+export const authorize = (...allowedRoles: UserRole[]): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // 1. Read req.user from trusted authentication context.
+    // 1. Read req.user and check whether authenticated identity exists.
     if (!req.user) {
-      return next(new ApiError(401, 'Authentication required'));
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
     }
 
+    // 2. Read req.user.role.
     const { role } = req.user;
 
-    // 2. Validate role against the supported role contract.
-    if (!SUPPORTED_ROLES.includes(role)) {
-      return next(new ApiError(401, 'Invalid or unsupported user role'));
+    // 3. Compare the trusted authenticated role against the allowed roles.
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to perform this action',
+      });
     }
 
-    // 3. Allow ADMIN automatically.
-    if (role === 'ADMIN') {
-      return next();
-    }
-
-    // 4. Check whether the user's role exists in allowedRoles.
-    if (allowedRoles.includes(role)) {
-      return next();
-    }
-
-    // 5. Return 403 Forbidden when authenticated but unauthorized.
-    return next(new ApiError(403, 'Forbidden: You do not have permission to perform this action'));
+    // 4. Call next() when authorized.
+    next();
   };
 };

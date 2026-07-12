@@ -1,3 +1,7 @@
+import { UserRole } from './role.types';
+
+export { UserRole };
+
 export const SUPPORTED_ROLES = [
   'ADMIN',
   'FLEET_MANAGER',
@@ -5,8 +9,6 @@ export const SUPPORTED_ROLES = [
   'SAFETY_OFFICER',
   'FINANCIAL_ANALYST',
 ] as const;
-
-export type UserRole = typeof SUPPORTED_ROLES[number];
 
 export interface AuthenticatedUser {
   id: string;

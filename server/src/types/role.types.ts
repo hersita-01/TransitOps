@@ -1,0 +1,8 @@
+export const USER_ROLES = {
+  FLEET_MANAGER: 'FLEET_MANAGER',
+  DISPATCHER: 'DISPATCHER',
+  SAFETY_OFFICER: 'SAFETY_OFFICER',
+  FINANCIAL_ANALYST: 'FINANCIAL_ANALYST',
+} as const;
+
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
