@@ -74,6 +74,8 @@ model Vehicle {
   expenses     Expense[]
 
   @@index([status])
+  // Composite: status filter + createdAt DESC ordering used by getVehicles()
+  @@index([status, createdAt])
 }
 
 /// Represents a driver
@@ -117,6 +119,10 @@ model Trip {
   @@index([driverId])
   @@index([status])
   @@index([startTime, endTime])
+  // Composite: all trips for a vehicle filtered by status (e.g. active trips per vehicle)
+  @@index([vehicleId, status])
+  // Composite: all trips for a driver filtered by status
+  @@index([driverId, status])
 }
 
 /// Represents a vehicle maintenance record
@@ -135,6 +141,8 @@ model Maintenance {
   @@index([vehicleId])
   @@index([status])
   @@index([startDate, endDate])
+  // Composite: open/in-progress maintenance scoped to a vehicle (IN_SHOP dashboard check)
+  @@index([vehicleId, status])
 }
 
 /// Represents a fuel consumption log
