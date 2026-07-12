@@ -42,6 +42,7 @@ enum MaintenanceStatus {
   COMPLETED
 }
 
+/// Represents a system user
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -50,8 +51,11 @@ model User {
   role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([role])
 }
 
+/// Represents a fleet vehicle
 model Vehicle {
   id                 Int           @id @default(autoincrement())
   registrationNumber String        @unique
@@ -59,7 +63,7 @@ model Vehicle {
   type               String
   capacity           Int
   odometer           Int
-  acquisitionCost    Float
+  acquisitionCost    Decimal       @db.Decimal(10, 2)
   status             VehicleStatus
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
@@ -68,8 +72,11 @@ model Vehicle {
   maintenances Maintenance[]
   fuelLogs     FuelLog[]
   expenses     Expense[]
+
+  @@index([status])
 }
 
+/// Represents a driver
 model Driver {
   id            Int          @id @default(autoincrement())
   name          String
@@ -77,63 +84,84 @@ model Driver {
   category      String
   expiryDate    DateTime
   contact       String
-  safetyScore   Float
+  safetyScore   Decimal      @db.Decimal(5, 2)
   status        DriverStatus
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   trips Trip[]
+
+  @@index([status])
 }
 
+/// Represents a trip assignment
 model Trip {
   id              Int        @id @default(autoincrement())
   vehicleId       Int
   driverId        Int
   source          String
   destination     String
-  cargoWeight     Float
-  plannedDistance Float
-  actualDistance  Float?
-  fuelUsed        Float?
+  cargoWeight     Decimal    @db.Decimal(10, 2)
+  plannedDistance Decimal    @db.Decimal(10, 2)
+  actualDistance  Decimal?   @db.Decimal(10, 2)
+  fuelUsed        Decimal?   @db.Decimal(10, 2)
   status          TripStatus
   startTime       DateTime
   endTime         DateTime?
   createdAt       DateTime   @default(now())
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
-  driver  Driver  @relation(fields: [driverId], references: [id])
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  driver  Driver  @relation(fields: [driverId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([status])
+  @@index([startTime, endTime])
 }
 
+/// Represents a vehicle maintenance record
 model Maintenance {
   id          Int               @id @default(autoincrement())
   vehicleId   Int
   serviceType String
   description String
-  cost        Float
+  cost        Decimal           @db.Decimal(10, 2)
   status      MaintenanceStatus
   startDate   DateTime
   endDate     DateTime?
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([vehicleId])
+  @@index([status])
+  @@index([startDate, endDate])
 }
 
+/// Represents a fuel consumption log
 model FuelLog {
   id        Int      @id @default(autoincrement())
   vehicleId Int
-  liters    Float
-  cost      Float
+  liters    Decimal  @db.Decimal(10, 2)
+  cost      Decimal  @db.Decimal(10, 2)
   date      DateTime
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([vehicleId])
+  @@index([date])
 }
 
+/// Represents an operational expense
 model Expense {
   id          Int      @id @default(autoincrement())
   vehicleId   Int
   category    String
-  amount      Float
+  amount      Decimal  @db.Decimal(10, 2)
   description String
   date        DateTime
 
-  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([vehicleId])
+  @@index([date, category])
 }
