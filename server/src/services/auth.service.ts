@@ -19,14 +19,14 @@ export class AuthService {
     }
 
     // Verify password using bcrypt
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new ApiError(401, 'Invalid credentials');
     }
 
     // Generate JWT token containing identity information
     const token = signToken({
-      userId: user.id,
+      userId: String(user.id),
       role: user.role,
     });
 
@@ -45,9 +45,10 @@ export class AuthService {
   /**
    * Fetch current authenticated user by ID
    */
-  public static async getCurrentUser(id: string) {
+  public static async getCurrentUser(id: string | number) {
+    const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { id: numericId },
     });
 
     if (!user) {
