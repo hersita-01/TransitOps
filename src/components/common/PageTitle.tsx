@@ -23,19 +23,22 @@ export function PageTitle({
         {/* Breadcrumb */}
         {breadcrumb && breadcrumb.length > 0 && (
           <nav aria-label="Breadcrumb" className="mb-2">
-            <ol className="flex items-center gap-1 text-xs text-slate-600">
+            <ol className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-disabled)' }}>
               {breadcrumb.map((crumb, i) => (
                 <li key={crumb.label} className="flex items-center gap-1">
-                  {i > 0 && <ChevronRight className="w-3 h-3 text-slate-700" />}
+                  {i > 0 && <ChevronRight className="w-3 h-3 opacity-50" />}
                   {crumb.href ? (
                     <a
                       href={crumb.href}
-                      className="hover:text-slate-400 transition-colors"
+                      className="transition-colors hover:text-slate-300"
+                      style={{ color: 'var(--text-muted)' }}
                     >
                       {crumb.label}
                     </a>
                   ) : (
-                    <span className="text-slate-500">{crumb.label}</span>
+                    <span style={{ color: i === breadcrumb.length - 1 ? 'var(--text-muted)' : 'var(--text-disabled)' }}>
+                      {crumb.label}
+                    </span>
                   )}
                 </li>
               ))}
@@ -44,9 +47,16 @@ export function PageTitle({
         )}
 
         {/* Heading */}
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight leading-tight">{title}</h1>
+        <h1
+          className="text-2xl font-bold tracking-tight leading-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {title}
+        </h1>
         {subtitle && (
-          <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{subtitle}</p>
+          <p className="mt-1.5 text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            {subtitle}
+          </p>
         )}
       </div>
 

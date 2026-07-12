@@ -98,7 +98,7 @@ export function LoginPage(): React.JSX.Element {
       </div>
 
       {/* Right: Login form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12" style={{ background: 'var(--surface-base)' }}>
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
@@ -109,15 +109,15 @@ export function LoginPage(): React.JSX.Element {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-100">Welcome back</h2>
-            <p className="text-slate-400 text-sm mt-1">Sign in to your TransitOps account</p>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Welcome back</h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Sign in to your TransitOps account</p>
           </div>
 
           {/* Form */}
           <form id="login-form" onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Email */}
             <div>
-              <label htmlFor="login-email" className="block text-xs font-medium text-slate-400 mb-1.5">
+              <label htmlFor="login-email" className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-muted)' }}>
                 Email Address
               </label>
               <div className="relative">
@@ -137,7 +137,7 @@ export function LoginPage(): React.JSX.Element {
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-xs font-medium text-slate-400 mb-1.5">
+              <label htmlFor="login-password" className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-muted)' }}>
                 Password
               </label>
               <div className="relative">
@@ -166,10 +166,10 @@ export function LoginPage(): React.JSX.Element {
 
             <div className="flex items-center justify-between mt-2">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-950" />
-                <span className="text-xs text-slate-400">Remember me</span>
+                <input type="checkbox" className="w-4 h-4 rounded accent-cyan-500" />
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Remember me</span>
               </label>
-              <a href="#" className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">
+              <a href="#" className="text-xs text-cyan-500 hover:text-cyan-400 font-medium transition-colors">
                 Forgot password?
               </a>
             </div>

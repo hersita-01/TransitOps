@@ -78,23 +78,22 @@ export function Sidebar({
         className={cn(
           // Base
           'fixed top-0 left-0 h-full z-50 flex flex-col',
-          'border-r border-slate-800/80',
-          'transition-all duration-250 ease-in-out',
+          'transition-sidebar',
           // Desktop: always visible, collapsible width
           'lg:translate-x-0',
           isCollapsed ? 'lg:w-[72px]' : 'lg:w-[260px]',
           // Mobile: slide in/out
           isOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full w-[260px] lg:translate-x-0',
-          'print:hidden'
+          'print:hidden sidebar-surface'
         )}
-        style={{ background: 'rgba(5, 10, 25, 0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
       >
         {/* Logo / Brand */}
         <div className={cn(
           'flex items-center gap-3 px-4 border-b shrink-0',
-          'h-16 transition-all duration-200',
-          'border-slate-800/80'
-        )}>
+          'h-16 transition-all duration-200'
+        )}
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shrink-0 shadow-lg shadow-cyan-500/25">
             <Zap className="w-4 h-4 text-white" />
           </div>

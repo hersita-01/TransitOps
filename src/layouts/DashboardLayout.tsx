@@ -30,7 +30,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 bg-ambient-grid flex">
+    <div className="min-h-screen flex bg-ambient-grid" style={{ backgroundColor: 'var(--surface-base)' }}>
       {/* Sidebar */}
       <Sidebar
         isOpen={isOpen}
@@ -66,7 +66,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.E
         </main>
 
         {/* Footer */}
-        <footer className="px-4 lg:px-6 py-3 border-t border-slate-800 text-center flex flex-col items-center justify-center print:hidden">
+        <footer className="px-4 lg:px-6 py-3 border-t text-center flex flex-col items-center justify-center print:hidden" style={{ borderColor: 'var(--border-subtle)' }}>
           <p className="text-[11px] text-slate-600">
             © {new Date().getFullYear()} TransitOps · Smart Transport Operations Platform
           </p>

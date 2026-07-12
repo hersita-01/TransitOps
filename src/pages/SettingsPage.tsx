@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Save, Building, Bell, Shield, Palette, Users, Check } from 'lucide-react';
+import { Save, Building, Bell, Shield, Palette, Users, Check, Sun, Moon, Monitor } from 'lucide-react';
 import { PageTitle } from '@/components/common/PageTitle';
 import { useToast } from '@/context/ToastContext';
+import { usePreferences } from '@/context/PreferencesContext';
 import { cn } from '@/utils';
+
 
 type SettingsTab = 'general' | 'appearance' | 'notifications' | 'security' | 'roles';
 
@@ -17,6 +19,7 @@ const TABS: Array<{ id: SettingsTab; label: string; icon: React.ReactNode }> = [
 export function SettingsPage(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const { toast } = useToast();
+  const { theme, setTheme, tableDensity, setTableDensity } = usePreferences();
 
   function handleSave(): void {
     toast('success', 'Settings Saved', 'Your preferences have been successfully updated.');
@@ -40,11 +43,12 @@ export function SettingsPage(): React.JSX.Element {
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-colors',
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left transition-all duration-150 border',
                   activeTab === tab.id
-                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
+                    ? 'border-cyan-500/30 text-cyan-400'
+                    : 'text-slate-500 hover:text-slate-200 border-transparent hover:border-slate-700/50'
                 )}
+                style={activeTab === tab.id ? { background: 'rgba(34,211,238,0.08)' } : undefined}
               >
                 {tab.icon}
                 {tab.label}
@@ -54,54 +58,54 @@ export function SettingsPage(): React.JSX.Element {
         </div>
 
         {/* Content */}
-        <div className="flex-1 rounded-2xl bg-slate-900/50 border border-slate-700/60 p-6 min-h-[500px]">
+        <div className="flex-1 rounded-2xl border p-6 min-h-[500px]" style={{ background: 'var(--surface-card)', borderColor: 'var(--border-base)' }}>
           
           {activeTab === 'general' && (
             <div className="animate-in fade-in duration-300">
-              <h2 className="text-lg font-bold text-slate-100 mb-6">General Settings</h2>
+              <h2 className="text-base font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>General Settings</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Organization Name</label>
-                  <input type="text" defaultValue="TransitOps Global" className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors" />
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Organization Name</label>
+                  <input type="text" defaultValue="TransitOps Global" className="w-full px-3 py-2.5 rounded-lg text-sm input-premium" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Organization Logo</label>
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Organization Logo</label>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-blue-400">TO</div>
-                    <button className="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors text-slate-200">Change Logo</button>
+                    <div className="w-12 h-12 rounded-lg border flex items-center justify-center font-bold text-cyan-400" style={{ background: 'var(--surface-elevated)', borderColor: 'var(--border-base)' }}>TO</div>
+                    <button className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors btn-base btn-secondary">Change Logo</button>
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Timezone</label>
-                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Timezone</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm input-premium">
                     <option>UTC (Coordinated Universal Time)</option>
                     <option>EST (Eastern Standard Time)</option>
                     <option>PST (Pacific Standard Time)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Date Format</label>
-                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Date Format</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm input-premium">
                     <option>MM/DD/YYYY</option>
                     <option>DD/MM/YYYY</option>
                     <option>YYYY-MM-DD</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Currency</label>
-                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Currency</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm input-premium">
                     <option>USD ($)</option>
                     <option>EUR (€)</option>
                     <option>GBP (£)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Language</label>
-                  <select className="w-full px-3 py-2.5 rounded-lg text-sm bg-slate-800 border border-slate-600 text-slate-100 focus:outline-none focus:border-blue-500 transition-colors">
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Language</label>
+                  <select className="w-full px-3 py-2.5 rounded-lg text-sm input-premium">
                     <option>English (US)</option>
                     <option>Spanish</option>
                     <option>French</option>
@@ -113,21 +117,37 @@ export function SettingsPage(): React.JSX.Element {
 
           {activeTab === 'appearance' && (
             <div className="animate-in fade-in duration-300">
-              <h2 className="text-lg font-bold text-slate-100 mb-6">Appearance</h2>
+              <h2 className="text-base font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>Appearance</h2>
               
+              {/* Theme Selector — FUNCTIONAL */}
               <div className="mb-8">
-                <label className="block text-xs font-semibold text-slate-400 uppercase mb-4">Theme</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {[
-                    { id: 'dark', label: 'Dark', bg: 'bg-slate-900', active: true },
-                    { id: 'light', label: 'Light', bg: 'bg-slate-100', active: false },
-                    { id: 'system', label: 'System', bg: 'bg-gradient-to-r from-slate-900 to-slate-100', active: false },
-                  ].map(theme => (
-                    <button key={theme.id} className={cn("rounded-xl border-2 p-3 text-left transition-all", theme.active ? "border-blue-500 bg-blue-500/5" : "border-slate-700 hover:border-slate-500")}>
-                      <div className={cn("w-full h-16 rounded-lg mb-3", theme.bg)} />
+                <label className="block text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>Theme</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    { id: 'dark'   as const, label: 'Dark',   icon: <Moon className="w-5 h-5" />,    preview: 'linear-gradient(135deg, #020817 0%, #0a1628 100%)' },
+                    { id: 'light'  as const, label: 'Light',  icon: <Sun className="w-5 h-5" />,     preview: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' },
+                    { id: 'system' as const, label: 'System', icon: <Monitor className="w-5 h-5" />, preview: 'linear-gradient(135deg, #020817 50%, #f8fafc 50%)' },
+                  ]).map(t => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      aria-pressed={theme === t.id}
+                      onClick={() => setTheme(t.id)}
+                      className={cn(
+                        'rounded-xl border-2 p-3 text-left transition-all duration-150',
+                        theme === t.id
+                          ? 'border-cyan-500'
+                          : 'border-transparent hover:border-slate-600'
+                      )}
+                      style={theme === t.id ? { background: 'rgba(34,211,238,0.06)' } : { background: 'var(--surface-elevated)' }}
+                    >
+                      <div className="w-full h-14 rounded-lg mb-3 border" style={{ background: t.preview, borderColor: 'var(--border-subtle)' }} />
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-slate-200">{theme.label}</span>
-                        {theme.active && <Check className="w-4 h-4 text-blue-500" />}
+                        <div className="flex items-center gap-2">
+                          <span style={{ color: theme === t.id ? '#22d3ee' : 'var(--text-muted)' }}>{t.icon}</span>
+                          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{t.label}</span>
+                        </div>
+                        {theme === t.id && <Check className="w-4 h-4 text-cyan-400" />}
                       </div>
                     </button>
                   ))}
@@ -136,21 +156,23 @@ export function SettingsPage(): React.JSX.Element {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Accent Color</label>
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>Accent Color</label>
                   <div className="flex gap-3">
-                    {['bg-blue-500', 'bg-violet-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500'].map((color, i) => (
-                      <button key={color} className={cn("w-8 h-8 rounded-full ring-2 ring-offset-2 ring-offset-slate-900 transition-all", color, i === 0 ? "ring-blue-500" : "ring-transparent hover:scale-110")} />
+                    {['bg-cyan-500', 'bg-violet-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500'].map((color, i) => (
+                      <button key={color} className={cn('w-8 h-8 rounded-full ring-2 ring-offset-2 transition-all', color, i === 0 ? 'ring-cyan-500' : 'ring-transparent hover:scale-110')}
+                        style={{ '--tw-ring-offset-color': 'var(--surface-card)' } as React.CSSProperties} />
                     ))}
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <label className="flex items-center gap-3">
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900" />
-                    <span className="text-sm text-slate-200">Compact Mode (denser tables and lists)</span>
-                  </label>
-                  <label className="flex items-center gap-3">
-                    <input type="checkbox" className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900" />
-                    <span className="text-sm text-slate-200">Collapse sidebar by default</span>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={tableDensity === 'compact'}
+                      onChange={e => setTableDensity(e.target.checked ? 'compact' : 'comfortable')}
+                      className="w-4 h-4 rounded accent-cyan-500"
+                    />
+                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Compact tables and lists</span>
                   </label>
                 </div>
               </div>

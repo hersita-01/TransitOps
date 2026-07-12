@@ -211,19 +211,22 @@ export function DashboardPage(): React.JSX.Element {
              aria-hidden />
         <div className="relative">
           <div className="flex items-center gap-2 mb-1.5">
-            <Building2 className="w-3.5 h-3.5 text-slate-600" />
-            <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">
+            <Building2 className="w-3.5 h-3.5" style={{ color: 'var(--text-disabled)' }} />
+            <span
+              className="text-[10px] font-semibold uppercase tracking-widest"
+              style={{ color: 'var(--text-disabled)' }}
+            >
               City Transit Authority
             </span>
           </div>
-          <h1 className="text-xl font-bold text-slate-50 leading-tight">
+          <h1 className="text-xl font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
             {greeting},{' '}
             <span className="text-gradient-cyan">
               {user?.firstName ?? 'Admin'}
             </span>{' '}
             <span role="img" aria-label="wave">👋</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
             Here's your fleet overview for today.
           </p>
         </div>

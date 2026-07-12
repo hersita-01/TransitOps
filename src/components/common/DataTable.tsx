@@ -38,11 +38,11 @@ interface DataTableProps<T> {
 
 function SortIcon({ column, sort }: { column: string; sort?: SortState }): React.JSX.Element {
   if (!sort || sort.column !== column) {
-    return <ArrowUpDown className="w-3.5 h-3.5 text-slate-500 ml-1 inline" />;
+    return <ArrowUpDown className="w-3.5 h-3.5 ml-1 inline opacity-40" />;
   }
   return sort.direction === 'asc'
-    ? <ArrowUp className="w-3.5 h-3.5 text-blue-400 ml-1 inline" />
-    : <ArrowDown className="w-3.5 h-3.5 text-blue-400 ml-1 inline" />;
+    ? <ArrowUp className="w-3.5 h-3.5 text-cyan-400 ml-1 inline" />
+    : <ArrowDown className="w-3.5 h-3.5 text-cyan-400 ml-1 inline" />;
 }
 
 // ── Loading skeleton ─────────────────────────────────────────
@@ -114,39 +114,67 @@ export function DataTable<T>({
     <div id={id} className={cn('flex flex-col gap-3', className)}>
       {showToolbar && (
         <div className="flex items-center justify-end gap-3 print:hidden relative">
-          <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-700/60">
-            <button
-              onClick={() => setTableDensity('comfortable')}
-              className={cn('px-2.5 py-1 text-xs font-medium rounded-md transition-colors', tableDensity === 'comfortable' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-200')}
-            >
-              Comfortable
-            </button>
-            <button
-              onClick={() => setTableDensity('compact')}
-              className={cn('px-2.5 py-1 text-xs font-medium rounded-md transition-colors', tableDensity === 'compact' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-200')}
-            >
-              Compact
-            </button>
+          {/* Density selector */}
+          <div
+            className="flex items-center gap-1 p-1 rounded-lg border"
+            style={{ background: 'var(--surface-card)', borderColor: 'var(--border-base)' }}
+          >
+            {(['comfortable', 'compact'] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setTableDensity(d)}
+                className={cn(
+                  'px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-150 capitalize',
+                  tableDensity === d
+                    ? 'text-white'
+                    : 'transition-colors'
+                )}
+                style={tableDensity === d ? {
+                  background: 'var(--surface-overlay)',
+                  color: 'var(--text-primary)',
+                } : { color: 'var(--text-muted)' }}
+              >
+                {d}
+              </button>
+            ))}
           </div>
-          
+
+          {/* Column visibility */}
           <div className="relative">
             <button
               onClick={() => setShowColSettings(!showColSettings)}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-slate-900/50 border border-slate-700/60 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium border rounded-lg transition-all duration-150 btn-base"
+              style={{
+                background: 'var(--surface-card)',
+                borderColor: 'var(--border-base)',
+                color: 'var(--text-secondary)',
+              }}
             >
               <Settings2 className="w-3.5 h-3.5" />
               Columns
             </button>
             {showColSettings && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 py-2">
+              <div
+                className="absolute right-0 top-full mt-2 w-48 rounded-xl shadow-xl z-50 py-2 border"
+                style={{
+                  background: 'var(--surface-overlay)',
+                  borderColor: 'var(--border-base)',
+                  boxShadow: 'var(--shadow-modal)',
+                }}
+              >
                 {columns.map((col) => (
                   <button
                     key={col.key}
                     onClick={() => toggleCol(col.key)}
-                    className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-700 transition-colors text-left"
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-left transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-elevated)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
                   >
                     <span>{col.header}</span>
-                    {hiddenCols.has(col.key) ? <EyeOff className="w-3.5 h-3.5 text-slate-500" /> : <Eye className="w-3.5 h-3.5 text-blue-400" />}
+                    {hiddenCols.has(col.key)
+                      ? <EyeOff className="w-3.5 h-3.5" style={{ color: 'var(--text-disabled)' }} />
+                      : <Eye className="w-3.5 h-3.5 text-cyan-400" />}
                   </button>
                 ))}
               </div>
@@ -155,25 +183,36 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className={cn('overflow-hidden rounded-xl border border-slate-700/50 shadow-lg shadow-black/20')}>
+      <div
+        className="overflow-hidden rounded-xl border"
+        style={{ borderColor: 'var(--border-base)', boxShadow: 'var(--shadow-card)' }}
+      >
         <div className="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar">
-          <table className="w-full text-sm relative">
+          <table className="w-full text-sm relative" style={{ background: 'var(--surface-card)' }}>
             {/* Head */}
             <thead className="sticky top-0 z-20">
-              <tr className="border-b border-slate-700/60" style={{ background: 'rgba(15, 23, 42, 0.95)' }}>
+              <tr
+                className="border-b"
+                style={{ background: 'var(--surface-elevated)', borderColor: 'var(--border-base)' }}
+              >
                 {visibleColumns.map((col, idx) => (
                 <th
                   key={col.key}
                   scope="col"
-                  style={{ background: 'rgba(15, 23, 42, 0.95)', ...(col.width ? { width: col.width } : {}) }}
                   className={cn(
                     cellPadding,
-                    'text-[11px] font-semibold text-slate-500 uppercase tracking-widest whitespace-nowrap',
+                    'text-[10px] font-semibold uppercase tracking-widest whitespace-nowrap',
                     col.align === 'center' && 'text-center',
                     col.align === 'right' && 'text-right',
-                    col.sortable && 'cursor-pointer select-none hover:text-slate-300 transition-colors',
-                    idx === 0 && 'sticky left-0 z-30 border-r border-slate-700/40'
+                    col.sortable && 'cursor-pointer select-none transition-colors',
+                    idx === 0 && 'sticky left-0 z-30 border-r'
                   )}
+                  style={{
+                    color: 'var(--text-muted)',
+                    background: 'var(--surface-elevated)',
+                    borderColor: 'var(--border-subtle)',
+                    ...(col.width ? { width: col.width } : {})
+                  }}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
                   aria-sort={
                     activeSort?.column === col.key
@@ -206,24 +245,31 @@ export function DataTable<T>({
                   key={keyExtractor(row)}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   className={cn(
-                    'border-b border-slate-700/30 group',
-                    'transition-colors duration-100',
-                    onRowClick ? 'cursor-pointer hover:bg-cyan-500/5' : 'hover:bg-slate-700/30',
+                    'group transition-all duration-100',
+                    onRowClick ? 'cursor-pointer' : '',
                     rowClassName?.(row)
                   )}
+                  style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                  onMouseEnter={e => { if (onRowClick) (e.currentTarget as HTMLElement).style.background = 'var(--interactive-primary-dim)'; else (e.currentTarget as HTMLElement).style.background = 'var(--surface-elevated)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
                 >
                   {visibleColumns.map((col, idx) => (
                     <td
                       key={col.key}
                       className={cn(
                         cellPadding,
-                        'text-slate-300 whitespace-nowrap transition-colors duration-100',
+                        'whitespace-nowrap transition-colors duration-100',
                         col.align === 'center' && 'text-center',
                         col.align === 'right' && 'text-right',
-                        idx === 0 && 'sticky left-0 z-10 border-r border-slate-700/40 backdrop-blur-sm',
-                        idx === 0 && (onRowClick ? 'group-hover:bg-cyan-950/40' : 'group-hover:bg-slate-800/90')
+                        idx === 0 && 'sticky left-0 z-10 border-r backdrop-blur-sm'
                       )}
-                      style={idx === 0 ? { background: 'inherit' } : undefined}
+                      style={{
+                        color: 'var(--text-secondary)',
+                        ...(idx === 0 ? {
+                          borderColor: 'var(--border-subtle)',
+                          background: 'var(--surface-card)',
+                        } : {})
+                      }}
                     >
                       {col.accessor(row)}
                     </td>

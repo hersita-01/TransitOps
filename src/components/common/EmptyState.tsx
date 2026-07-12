@@ -11,8 +11,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  title = 'No data found',
-  description = 'There is nothing to display here yet.',
+  title = 'No results found',
+  description = 'Try adjusting your search or filters, or add a new record to get started.',
   action,
   icon,
   className,
@@ -24,15 +24,43 @@ export function EmptyState({
         className
       )}
     >
-      <div className="relative flex items-center justify-center w-20 h-20 rounded-2xl mb-6">
-        {/* Outer glow ring */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/40 shadow-inner" />
-        <div className="relative z-10 w-11 h-11 rounded-xl bg-slate-800/90 border border-slate-700/60 flex items-center justify-center shadow-md">
-          {icon ?? <PackageOpen className="w-5 h-5 text-slate-500" />}
+      {/* Icon container */}
+      <div className="relative flex items-center justify-center w-20 h-20 mb-6">
+        {/* Layered rings */}
+        <div
+          className="absolute inset-0 rounded-2xl opacity-60"
+          style={{
+            background: 'var(--interactive-primary-dim)',
+            border: '1px solid var(--border-base)',
+            boxShadow: '0 0 24px rgba(34,211,238,0.06) inset',
+          }}
+        />
+        <div
+          className="absolute inset-2 rounded-xl"
+          style={{
+            background: 'var(--surface-elevated)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        />
+        <div className="relative z-10 flex items-center justify-center w-10 h-10">
+          <span style={{ color: 'var(--text-muted)' }}>
+            {icon ?? <PackageOpen className="w-6 h-6" />}
+          </span>
         </div>
       </div>
-      <h3 className="text-base font-semibold text-slate-300 mb-1.5 tracking-tight">{title}</h3>
-      <p className="text-sm text-slate-500 max-w-xs leading-relaxed">{description}</p>
+
+      <h3
+        className="text-sm font-semibold mb-1.5 tracking-tight"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        {title}
+      </h3>
+      <p
+        className="text-xs max-w-xs leading-relaxed"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {description}
+      </p>
       {action && <div className="mt-6">{action}</div>}
     </div>
   );

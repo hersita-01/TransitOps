@@ -29,7 +29,7 @@ export function Header({ onMenuClick, className }: HeaderProps): React.JSX.Eleme
       className={cn(
         'fixed top-0 right-0 left-0 lg:left-[260px]',
         'h-16 flex items-center justify-between px-4 lg:px-6 gap-4',
-        'bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/60 z-30',
+        'header-surface z-30',
         className
       )}
       role="banner"
