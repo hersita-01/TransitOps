@@ -87,7 +87,7 @@ export const MOCK_KPI_CARDS: KPICard[] = [
   {
     id: 'kpi_cost',
     title: 'Operational Cost',
-    value: `$${(MOCK_EXPENSES.reduce((sum, exp) => sum + exp.amountUsd, 0) / 1000).toFixed(1)}k`,
+    value: `₹${(MOCK_EXPENSES.reduce((sum, exp) => sum + exp.amountUsd, 0) / 1000).toFixed(1)}k`,
     unit: 'this month',
     trend: 'down',
     trendValue: '-2.4% vs last month',

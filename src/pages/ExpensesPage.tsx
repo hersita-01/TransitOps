@@ -148,7 +148,7 @@ export function ExpensesPage(): React.JSX.Element {
     {
       key: 'amount',
       header: 'Amount',
-      accessor: (e) => <span className="text-slate-100 font-semibold">${e.amountUsd.toFixed(2)}</span>,
+      accessor: (e) => <span className="text-slate-100 font-semibold">₹{e.amountUsd.toFixed(2)}</span>,
       align: 'right',
       sortable: true,
     },
@@ -197,10 +197,10 @@ export function ExpensesPage(): React.JSX.Element {
 
       {/* KPI Header */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <MetricCard label="Monthly Fuel Cost" value={`$${fuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-amber-400" />
-        <MetricCard label="Monthly Maintenance" value={`$${maintCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-blue-400" />
-        <MetricCard label="Other Expenses" value={`$${otherCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-purple-400" />
-        <MetricCard label="Total Operational Cost" value={`$${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-emerald-400" highlight />
+        <MetricCard label="Monthly Fuel Cost" value={`₹${fuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-amber-400" />
+        <MetricCard label="Monthly Maintenance" value={`₹${maintCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-blue-400" />
+        <MetricCard label="Other Expenses" value={`₹${otherCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-purple-400" />
+        <MetricCard label="Total Operational Cost" value={`₹${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} color="text-emerald-400" highlight />
       </div>
 
       {/* Recharts Analytics */}

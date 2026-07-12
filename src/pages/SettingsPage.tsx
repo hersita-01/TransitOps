@@ -98,7 +98,7 @@ export function SettingsPage(): React.JSX.Element {
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Currency</label>
                   <select className="w-full px-3 py-2.5 rounded-lg text-sm input-premium">
-                    <option>USD ($)</option>
+                    <option>INR (₹)</option>
                     <option>EUR (€)</option>
                     <option>GBP (£)</option>
                   </select>

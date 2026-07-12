@@ -176,7 +176,7 @@ export function MaintenancePage(): React.JSX.Element {
         const cost = r.actualCost !== null ? r.actualCost : r.estimatedCost;
         return (
           <div className="flex flex-col items-end gap-0.5">
-            <span className="text-xs font-medium text-slate-200">{cost !== null ? `$${cost.toFixed(2)}` : 'N/A'}</span>
+            <span className="text-xs font-medium text-slate-200">{cost !== null ? `₹${cost.toFixed(2)}` : 'N/A'}</span>
             <span className="text-[10px] text-slate-500">{r.actualCost !== null ? 'Actual' : 'Est.'}</span>
           </div>
         );
@@ -238,7 +238,7 @@ export function MaintenancePage(): React.JSX.Element {
         <MetricCard label="Vehicles in Service" value={metrics.inService} color="text-amber-400" />
         <MetricCard label="Scheduled Services" value={metrics.scheduled} color="text-blue-400" />
         <MetricCard label="Overdue Services" value={metrics.overdue} color="text-red-400" />
-        <MetricCard label="Total Cost (Completed)" value={`$${metrics.totalCost.toLocaleString()}`} color="text-emerald-400" />
+        <MetricCard label="Total Cost (Completed)" value={`₹${metrics.totalCost.toLocaleString()}`} color="text-emerald-400" />
       </div>
 
       <MaintenanceFilters

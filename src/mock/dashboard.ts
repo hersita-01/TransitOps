@@ -59,7 +59,7 @@ export const DASHBOARD_KPI_CARDS: KPICard[] = [
   {
     id: 'kpi_fuel_cost',
     title: 'Monthly Fuel Cost',
-    value: '$7,230',
+    value: '₹5,23,000',
     trend: 'down',
     trendValue: '-8.2% vs last month',
     icon: 'Fuel',

@@ -1,97 +1,849 @@
-import type { Expense, ExpenseCategory } from '@/types';
+// ──────────────────────────────────────────────────────────────
+// src/mock/expenses.ts
+// Auto-generated Indian mock data
+// ──────────────────────────────────────────────────────────────
 
-// Helper to generate a random mock expense
-const generateExpenses = (count: number): Expense[] => {
-  const expenses: Expense[] = [];
-  const categories: ExpenseCategory[] = ['fuel', 'maintenance', 'insurance', 'tyres', 'repairs', 'tolls', 'permits', 'miscellaneous'];
-  const vendors = {
-    fuel: ['Shell', 'BP', 'Exxon', 'Chevron', 'Mobile'],
-    maintenance: ['AutoZone', 'O-Reilly', 'NAPA Auto Parts', 'Pep Boys'],
-    insurance: ['Geico Commercial', 'Progressive Fleet', 'State Farm'],
-    tyres: ['Goodyear', 'Michelin', 'Discount Tire', 'Firestone'],
-    repairs: ['Local Mechanic Shop', 'Dealer Service Center', 'Fleet Repair Inc'],
-    tolls: ['E-ZPass', 'TollSmart', 'SunPass'],
-    permits: ['DMV', 'State Transport Dept', 'City Council'],
-    miscellaneous: ['Amazon', 'Walmart', 'Office Depot', 'Home Depot'],
-  };
+import type { Expense } from '@/types';
 
-  const statuses: ('pending' | 'approved' | 'rejected')[] = ['approved', 'approved', 'approved', 'pending', 'pending', 'rejected'];
-
-  for (let i = 1; i <= count; i++) {
-    const category = categories[Math.floor(Math.random() * categories.length)];
-    const vendorList = vendors[category];
-    const vendor = vendorList[Math.floor(Math.random() * vendorList.length)];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    
-    // Generate dates within the last 30 days
-    const daysAgo = Math.floor(Math.random() * 30);
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    
-    // Vehicle ID 1-20 (80% chance) or null (20% chance)
-    const hasVehicle = Math.random() > 0.2;
-    const vehicleId = hasVehicle ? `veh_${String(Math.floor(Math.random() * 20) + 1).padStart(3, '0')}` : null;
-    
-    // Driver ID 1-25 (50% chance)
-    const hasDriver = Math.random() > 0.5;
-    const driverId = hasDriver ? `drv_${String(Math.floor(Math.random() * 25) + 1).padStart(3, '0')}` : null;
-
-    let amountUsd = 0;
-    let description = '';
-
-    switch (category) {
-      case 'fuel':
-        amountUsd = Math.floor(Math.random() * 200) + 50;
-        description = `Diesel refill - ${Math.floor(amountUsd / 3.5)} gallons`;
-        break;
-      case 'maintenance':
-        amountUsd = Math.floor(Math.random() * 500) + 100;
-        description = 'Routine service and fluid checks';
-        break;
-      case 'insurance':
-        amountUsd = Math.floor(Math.random() * 1000) + 500;
-        description = 'Monthly fleet insurance premium';
-        break;
-      case 'tyres':
-        amountUsd = Math.floor(Math.random() * 800) + 200;
-        description = 'Replacement of worn tires';
-        break;
-      case 'repairs':
-        amountUsd = Math.floor(Math.random() * 2000) + 300;
-        description = 'Emergency repair due to breakdown';
-        break;
-      case 'tolls':
-        amountUsd = Math.floor(Math.random() * 50) + 10;
-        description = 'Interstate toll fees';
-        break;
-      case 'permits':
-        amountUsd = Math.floor(Math.random() * 300) + 100;
-        description = 'Annual state operating permit';
-        break;
-      case 'miscellaneous':
-        amountUsd = Math.floor(Math.random() * 200) + 20;
-        description = 'Office supplies and cleaning materials';
-        break;
-    }
-
-    expenses.push({
-      id: `exp_${String(i).padStart(3, '0')}`,
-      vehicleId,
-      driverId,
-      tripId: null,
-      category,
-      amountUsd,
-      vendor,
-      description,
-      date: date.toISOString(),
-      receiptUrl: Math.random() > 0.3 ? `https://example.com/receipts/exp_${i}.pdf` : null,
-      status,
-      approvedBy: status === 'approved' ? 'Admin User' : null,
-    });
+export const MOCK_EXPENSES: Expense[] = [
+  {
+    "id": "exp_001",
+    "vehicleId": "veh_016",
+    "driverId": "drv_007",
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 18749,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-02-09T23:34:54.067Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_002",
+    "vehicleId": "veh_005",
+    "driverId": "drv_008",
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 26125,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-01-16T17:17:09.353Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_003",
+    "vehicleId": "veh_018",
+    "driverId": "drv_018",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 2812,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-05-18T20:37:28.663Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_004",
+    "vehicleId": "veh_014",
+    "driverId": null,
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 40941,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-04-17T01:54:36.767Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_005",
+    "vehicleId": "veh_004",
+    "driverId": null,
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 2106,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-06-06T19:54:16.463Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_006",
+    "vehicleId": "veh_001",
+    "driverId": null,
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 37436,
+    "vendor": "MRF Tyres",
+    "description": "TYRES expense",
+    "date": "2026-06-05T03:47:46.179Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_007",
+    "vehicleId": "veh_018",
+    "driverId": "drv_015",
+    "tripId": null,
+    "category": "repairs",
+    "amountUsd": 4699,
+    "vendor": "Ashok Leyland Service",
+    "description": "REPAIRS expense",
+    "date": "2026-06-04T09:28:53.838Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_008",
+    "vehicleId": "veh_020",
+    "driverId": null,
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 6598,
+    "vendor": "HPCL",
+    "description": "FUEL expense",
+    "date": "2026-04-17T18:27:37.749Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_009",
+    "vehicleId": "veh_013",
+    "driverId": null,
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 12119,
+    "vendor": "Indian Oil",
+    "description": "FUEL expense",
+    "date": "2026-04-11T15:48:09.673Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_010",
+    "vehicleId": "veh_011",
+    "driverId": null,
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 39910,
+    "vendor": "Bharat Petroleum",
+    "description": "FUEL expense",
+    "date": "2026-04-02T15:56:06.743Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_011",
+    "vehicleId": "veh_017",
+    "driverId": null,
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 21288,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-04-21T19:18:04.022Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_012",
+    "vehicleId": "veh_002",
+    "driverId": "drv_013",
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 28801,
+    "vendor": "MRF Tyres",
+    "description": "TYRES expense",
+    "date": "2026-07-03T14:52:01.541Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_013",
+    "vehicleId": "veh_011",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 19958,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-02-03T07:04:10.033Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_014",
+    "vehicleId": "veh_008",
+    "driverId": "drv_011",
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 42720,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-04-09T13:40:34.286Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_015",
+    "vehicleId": "veh_009",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 36748,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-01-12T23:17:28.354Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_016",
+    "vehicleId": "veh_011",
+    "driverId": "drv_018",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 37762,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-06-12T03:36:30.012Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_017",
+    "vehicleId": "veh_006",
+    "driverId": null,
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 16139,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-06-07T06:13:23.538Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_018",
+    "vehicleId": "veh_013",
+    "driverId": null,
+    "tripId": null,
+    "category": "repairs",
+    "amountUsd": 36527,
+    "vendor": "Bosch Diesel Center",
+    "description": "REPAIRS expense",
+    "date": "2026-07-06T14:10:05.681Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_019",
+    "vehicleId": "veh_011",
+    "driverId": "drv_021",
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 7907,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-03-03T10:13:46.135Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_020",
+    "vehicleId": "veh_014",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 14126,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-02-12T17:52:21.629Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_021",
+    "vehicleId": "veh_018",
+    "driverId": null,
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 2336,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-04-12T15:23:11.121Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_022",
+    "vehicleId": "veh_020",
+    "driverId": "drv_004",
+    "tripId": null,
+    "category": "maintenance",
+    "amountUsd": 36582,
+    "vendor": "TVS Service Center",
+    "description": "MAINTENANCE expense",
+    "date": "2026-03-19T13:29:17.023Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_023",
+    "vehicleId": "veh_020",
+    "driverId": null,
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 31723,
+    "vendor": "Indian Oil",
+    "description": "FUEL expense",
+    "date": "2026-04-15T17:09:19.863Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_024",
+    "vehicleId": "veh_003",
+    "driverId": "drv_022",
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 16420,
+    "vendor": "HPCL",
+    "description": "FUEL expense",
+    "date": "2026-04-06T06:37:43.431Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_025",
+    "vehicleId": "veh_009",
+    "driverId": "drv_008",
+    "tripId": null,
+    "category": "repairs",
+    "amountUsd": 21709,
+    "vendor": "Bosch Diesel Center",
+    "description": "REPAIRS expense",
+    "date": "2026-06-22T05:36:50.504Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_026",
+    "vehicleId": "veh_004",
+    "driverId": "drv_021",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 30393,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-05-24T00:59:13.727Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_027",
+    "vehicleId": "veh_005",
+    "driverId": null,
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 3629,
+    "vendor": "JK Tyres",
+    "description": "TYRES expense",
+    "date": "2026-05-28T13:07:39.808Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_028",
+    "vehicleId": "veh_011",
+    "driverId": "drv_022",
+    "tripId": null,
+    "category": "maintenance",
+    "amountUsd": 26732,
+    "vendor": "Bosch Diesel Center",
+    "description": "MAINTENANCE expense",
+    "date": "2026-04-18T18:14:49.567Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_029",
+    "vehicleId": "veh_005",
+    "driverId": "drv_022",
+    "tripId": null,
+    "category": "repairs",
+    "amountUsd": 40869,
+    "vendor": "Bosch Diesel Center",
+    "description": "REPAIRS expense",
+    "date": "2026-02-23T22:12:51.653Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_030",
+    "vehicleId": "veh_010",
+    "driverId": null,
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 13698,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-04-02T08:21:03.427Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_031",
+    "vehicleId": "veh_020",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 33958,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-04-20T20:28:21.713Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_032",
+    "vehicleId": "veh_004",
+    "driverId": null,
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 5114,
+    "vendor": "MRF Tyres",
+    "description": "TYRES expense",
+    "date": "2026-04-19T19:15:33.984Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_033",
+    "vehicleId": "veh_011",
+    "driverId": "drv_022",
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 40620,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-02-08T01:14:06.313Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_034",
+    "vehicleId": "veh_014",
+    "driverId": "drv_011",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 10994,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-04-01T17:42:56.263Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_035",
+    "vehicleId": "veh_014",
+    "driverId": "drv_016",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 44825,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-05-31T17:58:29.126Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_036",
+    "vehicleId": "veh_002",
+    "driverId": null,
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 43042,
+    "vendor": "MRF Tyres",
+    "description": "TYRES expense",
+    "date": "2026-04-18T05:58:05.278Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_037",
+    "vehicleId": "veh_012",
+    "driverId": null,
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 14229,
+    "vendor": "Bharat Petroleum",
+    "description": "FUEL expense",
+    "date": "2026-05-11T13:04:59.729Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_038",
+    "vehicleId": "veh_010",
+    "driverId": null,
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 23360,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-04-27T14:20:36.003Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_039",
+    "vehicleId": "veh_010",
+    "driverId": null,
+    "tripId": null,
+    "category": "maintenance",
+    "amountUsd": 43573,
+    "vendor": "Ashok Leyland Service",
+    "description": "MAINTENANCE expense",
+    "date": "2026-02-20T21:39:26.403Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_040",
+    "vehicleId": "veh_008",
+    "driverId": "drv_001",
+    "tripId": null,
+    "category": "repairs",
+    "amountUsd": 15997,
+    "vendor": "Tata Motors Workshop",
+    "description": "REPAIRS expense",
+    "date": "2026-05-06T22:14:50.758Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_041",
+    "vehicleId": "veh_015",
+    "driverId": "drv_010",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 44095,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-02-27T00:51:17.372Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_042",
+    "vehicleId": "veh_009",
+    "driverId": "drv_011",
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 25206,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-04-01T09:26:18.935Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_043",
+    "vehicleId": "veh_003",
+    "driverId": "drv_005",
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 12724,
+    "vendor": "JK Tyres",
+    "description": "TYRES expense",
+    "date": "2026-06-10T09:58:02.602Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_044",
+    "vehicleId": "veh_009",
+    "driverId": null,
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 41830,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-04-12T20:17:26.260Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_045",
+    "vehicleId": "veh_013",
+    "driverId": "drv_015",
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 42157,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-06-19T21:20:04.125Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_046",
+    "vehicleId": "veh_016",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 27035,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-04-27T23:12:12.739Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_047",
+    "vehicleId": "veh_012",
+    "driverId": null,
+    "tripId": null,
+    "category": "miscellaneous",
+    "amountUsd": 31968,
+    "vendor": "Local Vendor",
+    "description": "MISCELLANEOUS expense",
+    "date": "2026-06-25T04:03:03.674Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_048",
+    "vehicleId": "veh_017",
+    "driverId": "drv_007",
+    "tripId": null,
+    "category": "insurance",
+    "amountUsd": 12073,
+    "vendor": "Local Vendor",
+    "description": "INSURANCE expense",
+    "date": "2026-01-17T00:58:06.563Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_049",
+    "vehicleId": "veh_003",
+    "driverId": "drv_012",
+    "tripId": null,
+    "category": "tyres",
+    "amountUsd": 4002,
+    "vendor": "MRF Tyres",
+    "description": "TYRES expense",
+    "date": "2026-02-01T04:03:20.155Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_050",
+    "vehicleId": "veh_009",
+    "driverId": null,
+    "tripId": null,
+    "category": "repairs",
+    "amountUsd": 19402,
+    "vendor": "TVS Service Center",
+    "description": "REPAIRS expense",
+    "date": "2026-04-15T22:47:22.090Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_051",
+    "vehicleId": "veh_006",
+    "driverId": "drv_009",
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 7895,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-05-07T14:24:59.616Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_052",
+    "vehicleId": "veh_011",
+    "driverId": null,
+    "tripId": null,
+    "category": "maintenance",
+    "amountUsd": 7690,
+    "vendor": "Ashok Leyland Service",
+    "description": "MAINTENANCE expense",
+    "date": "2026-06-27T02:35:51.702Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_053",
+    "vehicleId": "veh_018",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 8275,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-02-14T20:12:16.405Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_054",
+    "vehicleId": "veh_015",
+    "driverId": null,
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 2584,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-04-27T08:33:25.708Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_055",
+    "vehicleId": "veh_012",
+    "driverId": "drv_010",
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 9380,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-04-18T11:01:04.736Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_056",
+    "vehicleId": "veh_010",
+    "driverId": null,
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 21264,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-02-12T06:48:02.290Z",
+    "receiptUrl": null,
+    "status": "approved",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_057",
+    "vehicleId": "veh_004",
+    "driverId": null,
+    "tripId": null,
+    "category": "fuel",
+    "amountUsd": 29080,
+    "vendor": "Bharat Petroleum",
+    "description": "FUEL expense",
+    "date": "2026-05-06T21:01:37.328Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_058",
+    "vehicleId": "veh_011",
+    "driverId": null,
+    "tripId": null,
+    "category": "maintenance",
+    "amountUsd": 44092,
+    "vendor": "Tata Motors Workshop",
+    "description": "MAINTENANCE expense",
+    "date": "2026-04-01T12:42:39.165Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_059",
+    "vehicleId": "veh_004",
+    "driverId": null,
+    "tripId": null,
+    "category": "permits",
+    "amountUsd": 3895,
+    "vendor": "Local Vendor",
+    "description": "PERMITS expense",
+    "date": "2026-05-07T17:54:20.458Z",
+    "receiptUrl": null,
+    "status": "pending",
+    "approvedBy": "admin"
+  },
+  {
+    "id": "exp_060",
+    "vehicleId": "veh_019",
+    "driverId": "drv_025",
+    "tripId": null,
+    "category": "tolls",
+    "amountUsd": 12728,
+    "vendor": "FASTag Toll Plaza",
+    "description": "TOLLS expense",
+    "date": "2026-05-12T01:11:24.518Z",
+    "receiptUrl": null,
+    "status": "rejected",
+    "approvedBy": "admin"
   }
-
-  // Sort descending by date
-  return expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-};
-
-export const MOCK_EXPENSES = generateExpenses(50);
+];
