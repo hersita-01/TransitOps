@@ -6,11 +6,11 @@
 | :--- | :--- |
 | **Project Name** | TransitOps |
 | **Current Sprint** | Sprint 3 - Final Engineering Review, QA & Enterprise Hardening |
-| **Progress** | Final Senior Engineering Review Complete (Score 99/100); Trip, Maintenance, Fuel & Expense APIs Implemented (Live DB Pending) |
+| **Progress** | Final Senior Engineering Review Complete (Score 99/100); Dashboard, Analytics, and CSV Export APIs Implemented (Live DB Pending) |
 | **Repository Status** | Stable, Audited & Verified (Demo Readiness Score: 99/100) |
 | **Build Status** | PASS (Client Vite Bundle & Server TypeScript API Build Cleanly) |
 | **Database Version** | v0.1.0 (`server/prisma/schema.prisma`, migrations, check constraints & enterprise seed data ready) |
-| **API Version** | v1.0.0-alpha (Health, Auth, RBAC, Vehicle, Driver, Trip, Maintenance, Fuel & Expense REST APIs Operational) |
+| **API Version** | v1.0.0-alpha (Health, Auth, RBAC, Vehicle, Driver, Trip, Maintenance, Fuel, Expense, Dashboard, Analytics, CSV Export REST APIs Operational) |
 
 ---
 
@@ -24,6 +24,9 @@
 - [/] **Maintenance Lifecycle REST API**: IMPLEMENTED / LIVE DATABASE VERIFICATION PENDING.
 - [/] **Fuel Log REST API**: IMPLEMENTED / LIVE DATABASE VERIFICATION PENDING.
 - [/] **Expense REST API**: IMPLEMENTED / LIVE DATABASE VERIFICATION PENDING.
+- [/] **Dashboard KPI API**: IMPLEMENTED / LIVE DATABASE VERIFICATION PENDING.
+- [/] **Analytics API**: IMPLEMENTED / LIVE DATABASE VERIFICATION PENDING.
+- [/] **CSV Export API**: IMPLEMENTED / LIVE DATABASE VERIFICATION PENDING.
 - [x] **Database Audit & Hardening (INT-DB-001)**: Comprehensive review of `server/prisma/schema.prisma`, check constraints migration (`20260712063708_check_constraints`), indexes, and dynamic bcrypt seed passwords. Documented in [`docs/DATABASE_AUDIT.md`](DATABASE_AUDIT.md).
 - [x] **Frontend Trip Management (FE-005)**: Integrated `TripsPage`, `TripFilters`, `TripDetailsModal`, `TripFormModal`, and `TripTimeline`. Production bundle verified (`npm run build`).
 - [x] **Manual E2E Browser QA Audit (INT-007)**: Completed interactive browser session across all 9 pages (`/`, `/fleet`, `/drivers`, `/trips`, `/maintenance`, `/fuel`, `/expenses`, `/analytics`, `/settings`), exercising form validations, modal workflows, lifecycle transitions, and filtering. Documented in [`docs/MANUAL_QA_REPORT.md`](MANUAL_QA_REPORT.md).
@@ -49,16 +52,18 @@
 
 1. **Deployment Lead**: Apply Prisma migrations against live demo PostgreSQL server and run seed script (`npx ts-node server/prisma/seed.ts`).
 2. **Frontend Engineer**: Connect client UI hooks to live Express REST API endpoints.
-3. **Backend Engineer**: Implement Dashboard KPI, Analytics, and CSV Export APIs.
+3. **Backend Engineer**: Live Database Migration, Seed Execution, and Full Backend API Verification
 
 ---
 
 ## Integration Notes
 
-### Next Backend Dependencies (Dashboard, Analytics & CSV Export APIs)
-- Use database-backed aggregation.
-- Avoid loading entire tables into application memory unnecessarily.
-- Support role-authenticated access.
-- Return frontend-compatible KPI structures.
-- Use safe date-range filtering.
-- Never expose raw Prisma errors.
+### Next Backend Dependencies (Live Database Migration, Seed Execution, and Full Backend API Verification)
+- Apply existing Prisma migrations against demo PostgreSQL.
+- Run the approved seed script.
+- Verify seeded authentication.
+- Verify all domain APIs against real Prisma data.
+- Verify lifecycle transactions.
+- Verify Dashboard aggregation.
+- Verify Analytics aggregation.
+- Verify CSV exports against database records.

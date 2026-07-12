@@ -6,6 +6,9 @@ import tripRoutes from './trip.routes';
 import maintenanceRoutes from './maintenance.routes';
 import fuelRoutes from './fuel.routes';
 import expenseRoutes from './expense.routes';
+import dashboardRoutes from './dashboard.routes';
+import analyticsRoutes from './analytics.routes';
+import exportRoutes from './export.routes';
 import rbacTestRoutes from './rbac-test.routes';
 
 const router = Router();
@@ -43,6 +46,15 @@ router.use('/fuel', fuelRoutes);
 
 // Expense endpoints
 router.use('/expenses', expenseRoutes);
+
+// Dashboard endpoints
+router.use('/dashboard', dashboardRoutes);
+
+// Analytics endpoints
+router.use('/analytics', analyticsRoutes);
+
+// Export endpoints
+router.use('/export', exportRoutes);
 
 // RBAC Test endpoints (development only)
 if (process.env.NODE_ENV !== 'production') {
