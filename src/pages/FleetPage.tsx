@@ -1,165 +1,313 @@
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Plus, Eye, Edit2, Trash2 } from 'lucide-react';
 import { PageTitle } from '@/components/common/PageTitle';
-import { SearchBar } from '@/components/common/SearchBar';
-import { FilterBar } from '@/components/common/FilterBar';
 import { DataTable, type ColumnDef } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Pagination } from '@/components/common/Pagination';
-import { useSearch } from '@/hooks/useSearch';
-import { MOCK_VEHICLES } from '@/services/mockData';
-import { formatDate } from '@/utils';
-import type { Vehicle, FilterOption } from '@/types';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { FleetFilters, type FleetFilterState } from '@/components/fleet/FleetFilters';
+import { VehicleDetailsModal } from '@/components/fleet/VehicleDetailsModal';
+import { VehicleFormModal } from '@/components/fleet/VehicleFormModal';
+import { MOCK_VEHICLES } from '@/mock/vehicles';
+import { MOCK_DRIVERS } from '@/mock/drivers';
+import { formatDate, getInitials } from '@/utils';
+import type { Vehicle, SortState } from '@/types';
 
-const FILTERS: FilterOption[] = [
-  { label: 'All Vehicles', value: 'all' },
-  { label: 'Active',       value: 'active' },
-  { label: 'Idle',         value: 'idle' },
-  { label: 'Maintenance',  value: 'maintenance' },
-  { label: 'Offline',      value: 'offline' },
-];
-
-const COLUMNS: ColumnDef<Vehicle>[] = [
-  {
-    key: 'plate',
-    header: 'Plate Number',
-    accessor: (v) => <span className="font-mono font-semibold text-slate-200">{v.plateNumber}</span>,
-    sortable: true,
-  },
-  {
-    key: 'vehicle',
-    header: 'Vehicle',
-    accessor: (v) => (
-      <div>
-        <p className="text-slate-200 font-medium">{v.make} {v.model}</p>
-        <p className="text-xs text-slate-500 capitalize">{v.type} · {v.year}</p>
-      </div>
-    ),
-  },
-  {
-    key: 'status',
-    header: 'Status',
-    accessor: (v) => <StatusBadge status={v.status} />,
-    sortable: true,
-  },
-  {
-    key: 'fuel',
-    header: 'Fuel Level',
-    accessor: (v) => (
-      <div className="flex items-center gap-2 min-w-[100px]">
-        <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full"
-            style={{
-              width: `${v.fuelLevel}%`,
-              backgroundColor: v.fuelLevel > 50 ? '#10b981' : v.fuelLevel > 25 ? '#f59e0b' : '#ef4444',
-            }}
-          />
-        </div>
-        <span className="text-xs text-slate-400 shrink-0">{v.fuelLevel}%</span>
-      </div>
-    ),
-  },
-  {
-    key: 'mileage',
-    header: 'Mileage',
-    accessor: (v) => <span className="text-slate-300">{v.mileage.toLocaleString()} km</span>,
-    sortable: true,
-  },
-  {
-    key: 'nextService',
-    header: 'Next Service',
-    accessor: (v) => (
-      <span className={
-        new Date(v.nextServiceDue) < new Date()
-          ? 'text-red-400 font-medium'
-          : 'text-slate-300'
-      }>
-        {formatDate(v.nextServiceDue)}
-      </span>
-    ),
-    sortable: true,
-  },
-  {
-    key: 'location',
-    header: 'Location',
-    accessor: (v) => (
-      <span className="text-slate-400 text-xs truncate max-w-[160px] block">
-        {v.location?.address ?? '—'}
-      </span>
-    ),
-  },
-];
+const INITIAL_FILTERS: FleetFilterState = {
+  search: '',
+  status: '',
+  type: '',
+  fuelType: '',
+};
 
 export function FleetPage(): React.JSX.Element {
-  const { query, setQuery } = useSearch();
-  const [filter, setFilter] = useState('all');
+  // ── State ──────────────────────────────────────────────────
+  const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+  const [filters, setFilters] = useState<FleetFilterState>(INITIAL_FILTERS);
+  const [sort, setSort] = useState<SortState>({ column: 'createdAt', direction: 'desc' });
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 10;
+  const pageSize = 8;
 
-  const filtered = MOCK_VEHICLES.filter((v) => {
-    const matchFilter = filter === 'all' || v.status === filter;
-    const q = query.toLowerCase();
-    const matchSearch =
-      !q ||
-      v.plateNumber.toLowerCase().includes(q) ||
-      v.make.toLowerCase().includes(q) ||
-      v.model.toLowerCase().includes(q);
-    return matchFilter && matchSearch;
-  });
+  // Modals state
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // ── Handlers ───────────────────────────────────────────────
+
+  const handleAdd = () => {
+    setSelectedVehicle(null);
+    setFormModalOpen(true);
+  };
+
+  const handleView = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setDetailsModalOpen(true);
+  };
+
+  const handleEdit = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setFormModalOpen(true);
+  };
+
+  const handleDeleteRequest = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedVehicle) {
+      setVehicles((prev) => prev.filter((v) => v.id !== selectedVehicle.id));
+    }
+  };
+
+  const handleSave = (data: Partial<Vehicle>) => {
+    if (selectedVehicle) {
+      // Edit
+      setVehicles((prev) =>
+        prev.map((v) => (v.id === selectedVehicle.id ? { ...v, ...data } as Vehicle : v))
+      );
+    } else {
+      // Add
+      const newVehicle: Vehicle = {
+        ...(data as Vehicle),
+        id: `veh_${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date().toISOString(),
+        fuelLevel: 100,
+        mileage: 0,
+        lastServiceDate: new Date().toISOString(),
+        nextServiceDue: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+        location: null,
+        assignedRoute: null,
+      };
+      setVehicles((prev) => [newVehicle, ...prev]);
+    }
+    setFormModalOpen(false);
+  };
+
+  // ── Derived Data (Filter -> Sort -> Paginate) ──────────────
+
+  const filteredData = useMemo(() => {
+    return vehicles.filter((v) => {
+      if (filters.status && v.status !== filters.status) return false;
+      if (filters.type && v.type !== filters.type) return false;
+      if (filters.fuelType && v.fuelType !== filters.fuelType) return false;
+      if (filters.search) {
+        const query = filters.search.toLowerCase();
+        if (
+          !v.plateNumber.toLowerCase().includes(query) &&
+          !v.model.toLowerCase().includes(query)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [vehicles, filters]);
+
+  const sortedData = useMemo(() => {
+    return [...filteredData].sort((a, b) => {
+      const dir = sort.direction === 'asc' ? 1 : -1;
+      let valA: any = a[sort.column as keyof Vehicle];
+      let valB: any = b[sort.column as keyof Vehicle];
+      
+      // Handle missing/null values
+      if (valA == null) valA = '';
+      if (valB == null) valB = '';
+
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
+  }, [filteredData, sort]);
+
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, page, pageSize]);
+
+  // Adjust page if it exceeds total pages after filtering
+  useEffect(() => {
+    const totalPages = Math.ceil(sortedData.length / pageSize);
+    if (page > totalPages && totalPages > 0) {
+      setPage(totalPages);
+    }
+  }, [sortedData.length, page, pageSize]);
+
+  // ── Columns ────────────────────────────────────────────────
+
+  const columns: ColumnDef<Vehicle>[] = [
+    {
+      key: 'plateNumber',
+      header: 'Registration',
+      sortable: true,
+      accessor: (v) => <span className="font-mono text-blue-400">{v.plateNumber}</span>,
+    },
+    {
+      key: 'model',
+      header: 'Model',
+      sortable: true,
+      accessor: (v) => (
+        <div>
+          <p className="text-slate-200 font-medium">{v.model}</p>
+          <p className="text-[10px] text-slate-500">{v.make}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      sortable: true,
+      accessor: (v) => <span className="capitalize">{v.type}</span>,
+    },
+    {
+      key: 'driverId',
+      header: 'Driver',
+      accessor: (v) => {
+        const d = MOCK_DRIVERS.find((drv) => drv.id === v.driverId);
+        if (!d) return <span className="text-slate-500 text-xs italic">Unassigned</span>;
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-300">
+              {getInitials(d.firstName, d.lastName)}
+            </div>
+            <span className="text-xs text-slate-300">{d.firstName} {d.lastName}</span>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'fuelType',
+      header: 'Fuel',
+      sortable: true,
+      accessor: (v) => <span className="capitalize text-xs">{v.fuelType}</span>,
+    },
+    {
+      key: 'capacity',
+      header: 'Capacity',
+      sortable: true,
+      accessor: (v) => <span className="text-xs">{v.capacity}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      accessor: (v) => <StatusBadge status={v.status} />,
+    },
+    {
+      key: 'lastServiceDate',
+      header: 'Last Maint.',
+      sortable: true,
+      accessor: (v) => <span className="text-xs text-slate-400">{formatDate(v.lastServiceDate)}</span>,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      accessor: (v) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleView(v); }}
+            className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-md transition-colors"
+            title="View Details"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleEdit(v); }}
+            className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-md transition-colors"
+            title="Edit Vehicle"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleDeleteRequest(v); }}
+            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors"
+            title="Delete Vehicle"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  // ── Render ─────────────────────────────────────────────────
 
   return (
-    <div>
-      <PageTitle
-        title="Fleet Management"
-        subtitle={`${MOCK_VEHICLES.length} vehicles registered · ${MOCK_VEHICLES.filter((v) => v.status === 'active').length} currently active`}
-        breadcrumb={[{ label: 'TransitOps' }, { label: 'Fleet' }]}
-        actions={
-          <button
-            id="add-vehicle-btn"
-            type="button"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-600/25"
-          >
-            <Plus className="w-4 h-4" />
-            Add Vehicle
-          </button>
-        }
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <PageTitle
+          title="Fleet Management"
+          subtitle={`Manage your fleet of ${vehicles.length} vehicles`}
+        />
+        <button
+          onClick={handleAdd}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm shadow-blue-600/20"
+        >
+          <Plus className="w-4 h-4" />
+          Add Vehicle
+        </button>
+      </div>
+
+      {/* Filters */}
+      <FleetFilters
+        filters={filters}
+        onChange={(newFilters) => {
+          setFilters(newFilters);
+          setPage(1); // Reset to first page on filter change
+        }}
+        onReset={() => {
+          setFilters(INITIAL_FILTERS);
+          setPage(1);
+        }}
       />
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        <SearchBar
-          id="fleet-search"
-          value={query}
-          onChange={setQuery}
-          placeholder="Search by plate, make, model…"
-          className="sm:max-w-sm"
+      {/* Table & Pagination */}
+      <div className="bg-slate-800/20 border border-slate-700/50 rounded-xl p-4">
+        <DataTable<Vehicle>
+          columns={columns}
+          data={paginatedData}
+          keyExtractor={(v) => v.id}
+          sort={sort}
+          onSort={setSort}
+          emptyTitle="No vehicles found"
+          emptyDescription="Try adjusting your search or filters."
         />
-        <FilterBar
-          id="fleet-filter"
-          filters={FILTERS}
-          activeFilter={filter}
-          onFilterChange={(v) => { setFilter(v); setPage(1); }}
+        
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={sortedData.length}
+          onPageChange={setPage}
         />
       </div>
 
-      {/* Table */}
-      <DataTable<Vehicle>
-        id="fleet-table"
-        columns={COLUMNS}
-        data={paginated}
-        keyExtractor={(v) => v.id}
-        emptyTitle="No vehicles found"
-        emptyDescription="Try adjusting your search or filter criteria."
+      {/* Modals */}
+      <VehicleDetailsModal
+        open={detailsModalOpen}
+        onOpenChange={setDetailsModalOpen}
+        vehicle={selectedVehicle}
       />
 
-      <Pagination
-        page={page}
-        pageSize={PAGE_SIZE}
-        total={filtered.length}
-        onPageChange={setPage}
+      <VehicleFormModal
+        open={formModalOpen}
+        onOpenChange={setFormModalOpen}
+        initialData={selectedVehicle}
+        onSave={handleSave}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Vehicle"
+        description={`Are you sure you want to delete vehicle ${selectedVehicle?.plateNumber}? This action cannot be undone.`}
+        confirmText="Delete"
+        destructive={true}
+        onConfirm={handleDeleteConfirm}
       />
     </div>
   );

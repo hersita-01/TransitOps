@@ -21,12 +21,16 @@ export interface Vehicle {
   model: string;
   year: number;
   type: 'bus' | 'van' | 'truck' | 'sedan';
+  fuelType: 'diesel' | 'electric' | 'hybrid' | 'gasoline';
+  capacity: number;
   status: VehicleStatus;
   driverId: string | null;
   mileage: number;
   fuelLevel: number; // 0-100 percentage
   lastServiceDate: string; // ISO date
   nextServiceDue: string; // ISO date
+  insuranceExpiry: string; // ISO date
+  purchaseDate: string; // ISO date
   location: GeoLocation | null;
   assignedRoute: string | null;
   createdAt: string;
