@@ -44,7 +44,8 @@
 
 ## Known Issues & Blockers
 
-- **Remaining Blockers**: **None**. Both frontend and backend compile, build, and run cleanly with zero browser JavaScript runtime errors or TypeScript compilation errors. See [`docs/ENGINEERING_REVIEW.md`](ENGINEERING_REVIEW.md) for full review scorecard.
+- **Live Database Blocked**: PostgreSQL is not running on `localhost:5432`. Live database migration, seed execution, and API verification are currently blocked until the database server is available.
+- **Remaining Backend Blockers**: **None**. Both frontend and backend compile, build, and run cleanly with zero browser JavaScript runtime errors or TypeScript compilation errors. See [`docs/ENGINEERING_REVIEW.md`](ENGINEERING_REVIEW.md) for full review scorecard.
 
 ---
 
